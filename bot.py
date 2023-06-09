@@ -1,4 +1,4 @@
-from os import getenv
+from os import getenv, remove
 
 from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -18,6 +18,10 @@ async def on_startup(_) -> None:
     global cards
 
     await start()
+
+
+async def on_shutdown(_) -> None:
+    remove(path='db.db')
 
 
 class AddCard(StatesGroup):
