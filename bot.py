@@ -15,8 +15,6 @@ dp = Dispatcher(bot=bot, storage=storage)
 
 
 async def on_startup(_) -> None:
-    global cards
-
     await start()
 
 
