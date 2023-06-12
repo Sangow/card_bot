@@ -68,9 +68,15 @@ async def add_card_3(message: Message, state: FSMContext) -> None:
 @dp.message_handler(text='CONFIRM', state=AddCard.confirm)
 async def add_card_4(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
-        await add_card(user_id=message.from_user.id,
-                       card_number=data['card_number'],
-                       card_nickname=data['card_nickname'])
+        try:
+            await add_card(user_id=message.from_user.id,
+                           card_number=data['card_number'],
+                           card_nickname=data['card_nickname'])
+        except:
+            await message.answer(text='Choose another nickname:',
+                                 reply_markup=cancel_kb)
+            await AddCard.card_nickname.set()
+            return
 
     await message.answer(text='Confirmed.',
                          reply_markup=start_kb)
