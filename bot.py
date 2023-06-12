@@ -110,6 +110,11 @@ async def callback_delete(callback: CallbackQuery) -> None:
     await callback.answer(text='Card deleted.')
 
 
+@dp.callback_query_handler(lambda callback: callback.data == 'edit_callback')
+async def callback_edit(callback: CallbackQuery) -> None:
+    pass
+
+
 if __name__ == '__main__':
     executor.start_polling(dispatcher=dp,
                            skip_updates=True,
