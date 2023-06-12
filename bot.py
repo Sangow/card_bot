@@ -3,11 +3,11 @@ from os import getenv, remove
 from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message
 
 from keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb
 from sq import start, get_cards_nicknames, add_card, get_card_number
+from states import AddCard, ShowCard
 
 storage = MemoryStorage()
 bot = Bot(token=getenv(key='API_TOKEN'))
@@ -16,20 +16,6 @@ dp = Dispatcher(bot=bot, storage=storage)
 
 async def on_startup(_) -> None:
     await start()
-
-
-async def on_shutdown(_) -> None:
-    remove(path='db.db')
-
-
-class AddCard(StatesGroup):
-    card_number = State()
-    card_nickname = State()
-    confirm = State()
-
-
-class ShowCard(StatesGroup):
-    show_card_number = State()
 
 
 @dp.message_handler(commands=['start'])
@@ -59,7 +45,7 @@ async def add_card_1(message: Message) -> None:
 
 
 @dp.message_handler(state=AddCard.card_number)
-async def add_card_2(message: Message, state: FSMContext) -> None:  # TODO validate credit card
+async def add_card_2(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         data['card_number'] = message.text
 
