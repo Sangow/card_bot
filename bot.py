@@ -1,12 +1,12 @@
-from os import getenv, remove
+from os import getenv
 
 from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
-from keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb
-from sq import start, get_cards_nicknames, add_card, get_card_number
+from keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, delete_inline_kb
+from sq import start, get_cards_nicknames, add_card, get_card_number, delete_card
 from states import AddCard, ShowCard
 
 storage = MemoryStorage()
@@ -20,7 +20,7 @@ async def on_startup(_) -> None:
 
 @dp.message_handler(commands=['start'])
 async def start_command(message: Message) -> None:
-    await message.answer(text='This is card bot!',
+    await message.answer(text='Choose button:',
                          reply_markup=start_kb)
 
 
@@ -85,8 +85,9 @@ async def show_cards_nicknames(message: Message) -> None:
         await message.answer(text='There is no card.')
         return
 
-    await message.answer(text='TEST',
+    await message.answer(text='Choose your card:',
                          reply_markup=nickname_kb(nicks))
+
     await ShowCard.show_card_number.set()
 
 
@@ -94,8 +95,19 @@ async def show_cards_nicknames(message: Message) -> None:
 async def show_card_number(message: Message, state: FSMContext) -> None:
     await message.answer(text=f'`{await get_card_number(user_id=message.from_user.id, card_nickname=message.text)}`',
                          parse_mode='markdown',
+                         reply_markup=delete_inline_kb)
+
+    await message.answer(text='Choose button:',
                          reply_markup=start_kb)
+
     await state.finish()
+
+
+@dp.callback_query_handler(lambda callback: callback.data == 'delete_callback')
+async def callback_delete(callback: CallbackQuery) -> None:
+    await delete_card(user_id=callback.from_user.id,
+                      card_number=callback.message.text)
+    await callback.answer(text='Card deleted.')
 
 
 if __name__ == '__main__':
