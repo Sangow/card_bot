@@ -19,5 +19,7 @@ def nickname_kb(card_nicknames: list) -> ReplyKeyboardMarkup:
     return rkm
 
 
-delete_inline_kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='❌',
+delete_inline_kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='✏️',
+                                                                               callback_data='edit_callback'),
+                                                          InlineKeyboardButton(text='❌',
                                                                                callback_data='delete_callback')]])
