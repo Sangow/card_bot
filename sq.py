@@ -7,7 +7,8 @@ async def start() -> None:
     db = connect(database='db.db')
     cur = db.cursor()
 
-    cur.execute('CREATE TABLE IF NOT EXISTS cards (user_id TEXT, card_number TEXT, card_nickname TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS cards (user_id TEXT, card_number TEXT, card_nickname TEXT,'
+                'CONSTRAINT user_id_card_nick UNIQUE (user_id, card_nickname))')
     db.commit()
 
 
