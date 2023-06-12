@@ -118,7 +118,7 @@ async def callback_delete(callback: CallbackQuery) -> None:
 
 @dp.callback_query_handler(lambda callback: callback.data == 'edit_callback')
 async def callback_edit(callback: CallbackQuery) -> None:
-    pass
+    await callback.answer(text='In process... ^-^')
 
 
 if __name__ == '__main__':
