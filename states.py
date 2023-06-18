@@ -9,3 +9,8 @@ class AddCard(StatesGroup):
 
 class ShowCard(StatesGroup):
     show_card_number = State()
+
+
+class EditCard(StatesGroup):
+    edit = State()
+    confirm = State()
