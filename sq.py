@@ -29,3 +29,7 @@ async def add_card(user_id: str, card_number: str, card_nickname: str) -> None:
 async def delete_card(user_id: str, card_number: str) -> None:
     cur.execute('DELETE FROM cards WHERE user_id=(?) and card_number=(?)', (user_id, card_number))
     db.commit()
+
+
+async def edit_card(user_id: str, card_number: str, new_card_number: str) -> None:
+    pass
