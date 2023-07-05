@@ -7,7 +7,8 @@ from aiogram.types import Message, CallbackQuery
 
 from keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, delete_inline_kb
 from sq import start, get_cards_nicknames, add_card, get_card_number, delete_card
-from states import AddCard, ShowCard
+from states import AddCard, ShowCard, LuhnTest
+from other import luhn_check_card
 
 storage = MemoryStorage()
 bot = Bot(token=getenv(key='API_TOKEN'))
@@ -109,11 +110,24 @@ async def show_card_number(message: Message, state: FSMContext) -> None:
     await state.finish()
 
 
+@dp.message_handler(commands=['luhn'])
+async def check_card(message: Message) -> None:
+    await message.answer(text='enter card to check...')
+    await LuhnTest.check.set()
+
+
+@dp.message_handler(state=LuhnTest.check)
+async def retrieve_check_card(message: Message, state: FSMContext) -> None:
+    await message.answer(text=str(luhn_check_card(message.text)))
+    await state.finish()
+
+
 @dp.callback_query_handler(lambda callback: callback.data == 'delete_callback')
 async def callback_delete(callback: CallbackQuery) -> None:
     await delete_card(user_id=callback.from_user.id,
                       card_number=callback.message.text)
     await callback.answer(text='Card deleted.')
+    await callback.message.delete()
 
 
 @dp.callback_query_handler(lambda callback: callback.data == 'edit_callback')
