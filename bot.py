@@ -110,18 +110,6 @@ async def show_card_number(message: Message, state: FSMContext) -> None:
     await state.finish()
 
 
-@dp.message_handler(commands=['luhn'])
-async def check_card(message: Message) -> None:
-    await message.answer(text='enter card to check...')
-    await LuhnTest.check.set()
-
-
-@dp.message_handler(state=LuhnTest.check)
-async def retrieve_check_card(message: Message, state: FSMContext) -> None:
-    await message.answer(text=str(luhn_check_card(message.text)))
-    await state.finish()
-
-
 @dp.callback_query_handler(lambda callback: callback.data == 'delete_callback')
 async def callback_delete(callback: CallbackQuery) -> None:
     await delete_card(user_id=callback.from_user.id,
