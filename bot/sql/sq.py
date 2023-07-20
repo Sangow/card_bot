@@ -1,7 +1,7 @@
 from sqlite3 import connect
 
 
-async def start() -> None:
+async def start_db() -> None:
     global db, cur
 
     db = connect(database='db.db')
