@@ -10,7 +10,7 @@ from .user_handlers import cmd_start, cmd_cancel, \
 
 async def register_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(cmd_start, CommandStart())
-    dp.register_message_handler(cmd_cancel, Text(equals='cancel', ignore_case=True))
+    dp.register_message_handler(cmd_cancel, Text(equals='cancel', ignore_case=True), state='*')
 
     dp.register_message_handler(add_card_1, Text(equals='add card', ignore_case=True))
     dp.register_message_handler(add_card_2, state=AddCard.card_number)
