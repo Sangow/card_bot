@@ -14,7 +14,3 @@ class ShowCard(StatesGroup):
 class EditCard(StatesGroup):
     edit = State()
     confirm = State()
-
-
-class LuhnTest(StatesGroup):
-    check = State()
