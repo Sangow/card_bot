@@ -32,4 +32,6 @@ async def delete_card(user_id: str, card_number: str) -> None:
 
 
 async def edit_card(user_id: str, card_number: str, new_card_number: str) -> None:
-    pass
+    cur.execute('UPDATE cards SET card_number=(?) WHERE user_id=(?) and card_number=(?)',
+                (new_card_number, user_id, card_number))
+    db.commit()
