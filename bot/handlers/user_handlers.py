@@ -2,7 +2,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from bot.keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, delete_edit_inline_kb
-from bot.sql import get_cards_nicknames, add_card, get_card_number, delete_card
+from bot.sql import get_cards_nicknames, add_card, get_card_number, delete_card, edit_card
 from bot.states import AddCard, ShowCard
 from .service import validate_card_number
 
@@ -101,4 +101,6 @@ async def callback_delete(callback: CallbackQuery) -> None:
 
 
 async def callback_edit(callback: CallbackQuery) -> None:
-    await callback.answer(text='In process... ^-^')
+    await edit_card(callback.from_user.id, callback.message.text, '12345')
+    await callback.answer(text='Card edited.')
+    await callback.message.edit_text(text='12345')
