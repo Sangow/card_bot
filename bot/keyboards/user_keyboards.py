@@ -21,4 +21,4 @@ def nickname_kb(card_nicknames: list) -> ReplyKeyboardMarkup:
     for c_n in card_nicknames:
         rkm.insert(c_n[0])
 
-    return rkm
+    return rkm.add(KeyboardButton(text='CANCEL'))
