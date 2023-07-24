@@ -26,12 +26,12 @@ async def add_card(user_id: str, card_number: str, card_nickname: str) -> None:
     db.commit()
 
 
-async def delete_card(user_id: str, card_number: str) -> None:
-    cur.execute('DELETE FROM cards WHERE user_id=(?) and card_number=(?)', (user_id, card_number))
+async def delete_card(user_id: str, card_nickname: str) -> None:
+    cur.execute('DELETE FROM cards WHERE user_id=(?) and card_nickname=(?)', (user_id, card_nickname))
     db.commit()
 
 
-async def edit_card(user_id: str, card_number: str, new_card_number: str) -> None:
-    cur.execute('UPDATE cards SET card_number=(?) WHERE user_id=(?) and card_number=(?)',
-                (new_card_number, user_id, card_number))
+async def edit_card(user_id: str, card_nickname: str, new_card_number: str) -> None:
+    cur.execute('UPDATE cards SET card_number=(?) WHERE user_id=(?) and card_nickname=(?)',
+                (new_card_number, user_id, card_nickname))
     db.commit()
