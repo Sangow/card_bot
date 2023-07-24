@@ -2,7 +2,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from bot.keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, delete_edit_inline_kb
-from bot.sql import get_cards_nicknames, add_card, get_card_number, delete_card, edit_card
+from bot.sql import get_cards_nicknames, add_card, get_card_number, delete_card
 from bot.states import AddCard, ShowCard
 
 
@@ -87,18 +87,12 @@ async def show_cards_nicknames(message: Message) -> None:
 
 
 async def show_card_number(message: Message, state: FSMContext) -> None:
-    # print(await get_card_number(user_id=message.from_user.id, card_nickname=message.text))
-    # print(message.text.strip())
     await message.answer(text=f'<b>Nickname:</b> {message.text}\n\n'
                               f'⬇️<b>Tap to copy</b>⬇️\n\n'
                               f'<code>{await get_card_number(user_id=message.from_user.id, card_nickname=message.text)}</code>\n\n'
                               f'⬆️<b>Tap to copy</b>⬆️',
                          parse_mode='html',
                          reply_markup=delete_edit_inline_kb)
-
-    # await message.answer(text=f'`{await get_card_number(user_id=message.from_user.id, card_nickname=message.text)}`',
-    #                      parse_mode='markdown',
-    #                      reply_markup=delete_edit_inline_kb)
 
     await message.answer(text='Choose button:',
                          reply_markup=start_kb)
@@ -109,9 +103,9 @@ async def show_card_number(message: Message, state: FSMContext) -> None:
 async def callback_delete(callback: CallbackQuery) -> None:
     await delete_card(user_id=callback.from_user.id,
                       card_nickname=callback.message.text.split()[1])
-    await callback.answer(text=f'Card deleted.')
+    await callback.answer(text='Card deleted.')
     await callback.message.delete()
 
 
 async def callback_edit(callback: CallbackQuery) -> None:
-    await callback.answer(callback.message.text)
+    pass
