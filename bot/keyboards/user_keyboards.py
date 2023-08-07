@@ -6,6 +6,9 @@ start_kb = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='SHOW CARDS'), Key
 cancel_kb = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='CANCEL')]],
                                 resize_keyboard=True, )
 
+cancel_inline_kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='CANCEL',
+                                                                               callback_data='cancel_callback')]])
+
 confirm_kb = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='CONFIRM'), KeyboardButton(text='CANCEL')]],
                                  resize_keyboard=True)
 

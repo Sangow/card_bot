@@ -12,5 +12,5 @@ class ShowCard(StatesGroup):
 
 
 class EditCard(StatesGroup):
-    edit = State()
+    edit_card_number = State()
     confirm = State()

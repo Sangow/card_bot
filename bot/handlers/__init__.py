@@ -1,12 +1,12 @@
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import CommandStart, Text
 
-from bot.states import AddCard, ShowCard
+from bot.states import AddCard, ShowCard, EditCard
 from .service import validate_card_number, validate_card_nickname
 from .user_handlers import cmd_start, cmd_cancel, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, add_card_4, \
     show_cards_nicknames, show_card_number, \
-    callback_delete, callback_edit
+    callback_delete, callback_edit, edit_card_handler, edit_card_handler_fail, edit_card_handler_confirm
 
 
 async def register_handlers(dp: Dispatcher) -> None:
@@ -40,3 +40,11 @@ async def register_handlers(dp: Dispatcher) -> None:
                                        lambda callback: callback.data == 'delete_callback')
     dp.register_callback_query_handler(callback_edit,
                                        lambda callback: callback.data == 'edit_callback')
+
+    dp.register_message_handler(edit_card_handler_fail,
+                                lambda message: not validate_card_number(message.text),
+                                state=EditCard.edit_card_number)
+    dp.register_message_handler(edit_card_handler,
+                                state=EditCard.edit_card_number)
+    dp.register_message_handler(edit_card_handler_confirm,
+                                state=EditCard.confirm)

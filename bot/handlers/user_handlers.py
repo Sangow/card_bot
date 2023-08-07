@@ -1,9 +1,9 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from bot.keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, delete_edit_inline_kb
-from bot.sql import get_cards_nicknames, add_card, get_card_number, delete_card
-from bot.states import AddCard, ShowCard
+from bot.keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, delete_edit_inline_kb, cancel_inline_kb
+from bot.sql import get_cards_nicknames, add_card, get_card_number, delete_card, edit_card
+from bot.states import AddCard, ShowCard, EditCard
 
 
 async def cmd_start(message: Message, state: FSMContext) -> None:
@@ -107,5 +107,35 @@ async def callback_delete(callback: CallbackQuery) -> None:
     await callback.message.delete()
 
 
-async def callback_edit(callback: CallbackQuery) -> None:
-    pass
+async def callback_edit(callback: CallbackQuery, state: FSMContext) -> None:
+    async with state.proxy() as data:
+        data['card_nickname'] = callback.message.text.split()[1]
+
+    await callback.message.edit_text(text='Enter card number:',
+                                     reply_markup=cancel_inline_kb)
+    await EditCard.edit_card_number.set()
+
+
+async def edit_card_handler_fail(message: Message) -> None:
+    await message.answer(text='Credit card is invalid.')
+
+
+async def edit_card_handler(message: Message, state: FSMContext) -> None:
+    async with state.proxy() as data:
+        data['new_card_number'] = message.text
+
+    await message.answer(text='Do you confirm?',
+                         reply_markup=confirm_kb)
+
+    await EditCard.next()
+
+
+async def edit_card_handler_confirm(message: Message, state: FSMContext) -> None:
+    async with state.proxy() as data:
+        await edit_card(user_id=message.from_user.id,
+                        card_nickname=data['card_nickname'],
+                        new_card_number=data['card_number'])
+
+    await message.answer(text='Confirmed.',
+                         reply_markup=start_kb)
+    await state.finish()
