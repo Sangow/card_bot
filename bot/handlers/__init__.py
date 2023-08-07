@@ -23,7 +23,7 @@ async def register_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(add_card_2,
                                 state=AddCard.card_number)
     dp.register_message_handler(add_card_3_fail,
-                                lambda message: not validate_card_nickname(message.text.split()),
+                                lambda message: not validate_card_nickname(message.text),
                                 state=AddCard.card_nickname)
     dp.register_message_handler(add_card_3,
                                 state=AddCard.card_nickname)
