@@ -22,6 +22,11 @@ async def cmd_cancel(message: Message, state: FSMContext) -> None:
                          reply_markup=start_kb)
 
 
+async def cmd_cancel_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    await cmd_cancel(message=callback.message,
+                     state=state)
+
+
 async def add_card_1(message: Message) -> None:
     await message.answer(text='Enter card number:',
                          reply_markup=cancel_kb)

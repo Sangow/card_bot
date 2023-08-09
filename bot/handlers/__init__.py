@@ -6,7 +6,8 @@ from .service import validate_card_number, validate_card_nickname
 from .user_handlers import cmd_start, cmd_cancel, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, add_card_4, \
     show_cards_nicknames, show_card_number, \
-    callback_delete, callback_edit, edit_card_handler, edit_card_handler_fail, edit_card_handler_confirm
+    callback_delete, callback_edit, edit_card_handler, edit_card_handler_fail, edit_card_handler_confirm, \
+    cmd_cancel_callback
 
 
 async def register_handlers(dp: Dispatcher) -> None:
@@ -14,6 +15,8 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 CommandStart(),
                                 state='*')
     dp.register_message_handler(cmd_cancel, Text(equals='cancel', ignore_case=True), state='*')
+    dp.register_callback_query_handler(cmd_cancel_callback,
+                                       lambda callback: callback.data == 'cancel_callback')
 
     dp.register_message_handler(add_card_1,
                                 Text(equals='add card', ignore_case=True))
