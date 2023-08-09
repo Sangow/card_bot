@@ -1,35 +1,31 @@
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 
-from bot.keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, delete_edit_inline_kb, cancel_inline_kb
-from bot.sql import get_cards_nicknames, add_card, get_card_number, delete_card, edit_card
-from bot.states import AddCard, ShowCard, EditCard
+from bot.keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, \
+    delete_edit_kb
+from bot.sql import get_cards_nicknames, add_card, get_card_number
+from bot.states import AddCard, ShowCard
 
 
 async def cmd_start(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
-    await message.answer(text='Choose button:',
-                         reply_markup=start_kb)
+    await message.answer(
+        text='Choose button:',
+        reply_markup=start_kb
+    )
 
 
 async def cmd_cancel(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
-    await message.answer(text='Cancelled.',
-                         reply_markup=start_kb)
-
-
-async def cmd_cancel_callback(callback: CallbackQuery, state: FSMContext) -> None:
-    await cmd_cancel(message=callback.message,
-                     state=state)
+    await message.answer(text='Cancelled.', reply_markup=start_kb)
 
 
 async def add_card_1(message: Message) -> None:
-    await message.answer(text='Enter card number:',
-                         reply_markup=cancel_kb)
+    await message.answer(text='Enter card number:', reply_markup=cancel_kb)
     await AddCard.card_number.set()
 
 
@@ -67,9 +63,11 @@ async def add_card_4(message: Message, state: FSMContext) -> None:
                            card_number=data['card_number'],
                            card_nickname=data['card_nickname'])
         except:
-            await message.answer(text='Nickname of your card should be unique.\n'
-                                      'Choose another nickname (without spaces):',
-                                 reply_markup=cancel_kb)
+            await message.answer(
+                text='Nickname of your card should be unique.\n'
+                     'Choose another nickname (without spaces):',
+                reply_markup=cancel_kb
+            )
             await AddCard.card_nickname.set()
             return
 
@@ -92,55 +90,28 @@ async def show_cards_nicknames(message: Message) -> None:
 
 
 async def show_card_number(message: Message, state: FSMContext) -> None:
-    await message.answer(text=f'<b>Nickname:</b> {message.text}\n\n'
-                              f'⬇️<b>Tap to copy</b>⬇️\n\n'
-                              f'<code>{await get_card_number(user_id=message.from_user.id, card_nickname=message.text)}</code>\n\n'
-                              f'⬆️<b>Tap to copy</b>⬆️',
-                         parse_mode='html',
-                         reply_markup=delete_edit_inline_kb)
-
-    await message.answer(text='Choose button:',
-                         reply_markup=start_kb)
+    await message.answer(
+        text=f'<b>Nickname:</b> {message.text}\n\n'
+             f'⬇️<b>Tap to copy</b>⬇️\n\n'
+             f'<code>{await get_card_number(user_id=message.from_user.id, card_nickname=message.text)}</code>\n\n'
+             f'⬆️<b>Tap to copy</b>⬆️',
+        parse_mode='html',
+        reply_markup=delete_edit_kb
+    )
 
     await state.finish()
 
-
-async def callback_delete(callback: CallbackQuery) -> None:
-    await delete_card(user_id=callback.from_user.id,
-                      card_nickname=callback.message.text.split()[1])
-    await callback.answer(text='Card deleted.')
-    await callback.message.delete()
-
-
-async def callback_edit(callback: CallbackQuery, state: FSMContext) -> None:
-    async with state.proxy() as data:
-        data['card_nickname'] = callback.message.text.split()[1]
-
-    await callback.message.edit_text(text='Enter card number:',
-                                     reply_markup=cancel_inline_kb)
-    await EditCard.edit_card_number.set()
+# async def callback_delete(callback: CallbackQuery) -> None:
+#     await delete_card(user_id=callback.from_user.id,
+#                       card_nickname=callback.message.text.split()[1])
+#     await callback.answer(text='Card deleted.')
+#     await callback.message.delete()
 
 
-async def edit_card_handler_fail(message: Message) -> None:
-    await message.answer(text='Credit card is invalid.')
-
-
-async def edit_card_handler(message: Message, state: FSMContext) -> None:
-    async with state.proxy() as data:
-        data['new_card_number'] = message.text
-
-    await message.answer(text='Do you confirm?',
-                         reply_markup=confirm_kb)
-
-    await EditCard.next()
-
-
-async def edit_card_handler_confirm(message: Message, state: FSMContext) -> None:
-    async with state.proxy() as data:
-        await edit_card(user_id=message.from_user.id,
-                        card_nickname=data['card_nickname'],
-                        new_card_number=data['card_number'])
-
-    await message.answer(text='Confirmed.',
-                         reply_markup=start_kb)
-    await state.finish()
+# async def callback_edit(callback: CallbackQuery, state: FSMContext) -> None:
+#     async with state.proxy() as data:
+#         data['card_nickname'] = callback.message.text.split()[1]
+#
+#     await callback.message.edit_text(text='Enter card number:',
+#                                      reply_markup=cancel_inline_kb)
+#     await EditCard.edit_card_number.set()
