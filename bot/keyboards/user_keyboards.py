@@ -20,16 +20,19 @@ confirm_kb = ReplyKeyboardMarkup(keyboard=[
     ]],
     resize_keyboard=True)
 
-# delete_edit_inline_kb = InlineKeyboardMarkup(
-#     inline_keyboard=[[InlineKeyboardButton(text='✏️',
-#                                            callback_data='edit_callback'),
-#                       InlineKeyboardButton(text='❌',
-#                                            callback_data='delete_callback')]])
-
-delete_edit_kb = ReplyKeyboardMarkup(keyboard=[
+edit_delete_kb = ReplyKeyboardMarkup(keyboard=[
     [
         KeyboardButton(text='✏️'),
         KeyboardButton(text='❌')
+    ],
+    [
+        KeyboardButton(text='CANCEL')
+    ]],
+    resize_keyboard=True)
+
+leave_previous_kb = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(text='LEAVE PREVIOUS')
     ],
     [
         KeyboardButton(text='CANCEL')
