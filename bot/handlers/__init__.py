@@ -7,8 +7,7 @@ from .user_handlers import cmd_start, cmd_cancel, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, \
     add_card_4, show_nickname_list, show_card_number, edit_card_handler, \
     delete_card_handler, edit_card_number_previous_handler, \
-    edit_card_number_fail_handler, edit_card_number_handler, \
-    confirm_edited_card_handler
+    edit_card_number_fail_handler, edit_card_number_handler
 
 
 async def register_handlers(dp: Dispatcher) -> None:
@@ -56,21 +55,6 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 state=ShowCard.edit_card_number)
     dp.register_message_handler(edit_card_number_handler,
                                 state=ShowCard.edit_card_number)
-
-    # dp.register_message_handler(edit_card_nickname_previous_handler,
-    #                             Text(equals='leave previous',
-    #                                  ignore_case=True),
-    #                             state=ShowCard.edit_card_nickname)
-    # dp.register_message_handler(edit_card_nickname_fail_handler,
-    #                             lambda message:
-    #                             not validate_card_nickname(message.text),
-    #                             state=ShowCard.edit_card_nickname)
-    # dp.register_message_handler(edit_card_nickname_handler,
-    #                             state=ShowCard.edit_card_nickname)
-
-    dp.register_message_handler(confirm_edited_card_handler,
-                                Text(equals='confirm', ignore_case=True),
-                                state=ShowCard.confirm)
 
     dp.register_message_handler(delete_card_handler,
                                 Text(equals='❌'),

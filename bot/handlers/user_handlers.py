@@ -119,11 +119,17 @@ async def edit_card_handler(message: Message) -> None:
     await ShowCard.edit_card_number.set()
 
 
-async def edit_card_number_previous_handler(message: Message) -> None:
-    await message.answer(text='Do you confirm?',
-                         reply_markup=confirm_kb)
+async def edit_card_number_previous_handler(
+        message: Message,
+        state: FSMContext) -> None:
+    async with state.proxy() as data:
+        await edit_card(user_id=message.from_user.id,
+                        card_nickname=data['card_nickname'],
+                        new_card_number=data['card_number'])
 
-    await ShowCard.confirm.set()
+    await message.answer(text='Card edited.',
+                         reply_markup=start_kb)
+    await state.finish()
 
 
 async def edit_card_number_fail_handler(message: Message) -> None:
@@ -134,48 +140,11 @@ async def edit_card_number_handler(
         message: Message,
         state: FSMContext) -> None:
     async with state.proxy() as data:
-        data['card_number'] = message.text
-
-    await message.answer(text='Do you confirm?',
-                         reply_markup=confirm_kb)
-
-    await ShowCard.confirm.set()
-
-
-# async def edit_card_nickname_previous_handler(message: Message) -> None:
-#     await message.answer(text='Do you confirm?',
-#                          reply_markup=confirm_kb)
-#
-#     await ShowCard.confirm.set()
-#
-#
-# async def edit_card_nickname_fail_handler(message: Message) -> None:
-#     await message.answer(text='Choose another nickname (without spaces):')
-#
-#
-# async def edit_card_nickname_handler(
-#         message: Message,
-#         state: FSMContext) -> None:
-#     new_card_nickname = message.text
-#
-#     async with state.proxy() as data:
-#         data['card_nickname'] = new_card_nickname
-#
-#     await message.answer(text='Do you confirm?',
-#                          reply_markup=confirm_kb)
-#
-#     await ShowCard.confirm.set()
-
-
-async def confirm_edited_card_handler(
-        message: Message,
-        state: FSMContext) -> None:
-    async with state.proxy() as data:
         await edit_card(user_id=message.from_user.id,
                         card_nickname=data['card_nickname'],
-                        new_card_number=data['card_number'])
+                        new_card_number=message.text)
 
-    await message.answer(text='Confirmed.',
+    await message.answer(text='Card edited.',
                          reply_markup=start_kb)
     await state.finish()
 

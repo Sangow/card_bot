@@ -12,4 +12,3 @@ class ShowCard(StatesGroup):
     edit_delete_card = State()
     edit_card_number = State()
     edit_card_nickname = State()
-    confirm = State()
