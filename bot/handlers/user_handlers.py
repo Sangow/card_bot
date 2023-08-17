@@ -1,7 +1,7 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
 
-from bot.keyboards import start_kb, cancel_kb, confirm_kb, nickname_kb, \
+from bot.keyboards import start_kb, cancel_kb, nickname_kb, \
     leave_previous_kb, edit_delete_kb
 from bot.sql import get_cards_nicknames, add_card, get_card_number, \
     delete_card, edit_card
@@ -49,30 +49,19 @@ async def add_card_3_fail(message: Message) -> None:
 
 async def add_card_3(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
-        data['card_nickname'] = message.text
-
-    await message.answer(text='Do you confirm?',
-                         reply_markup=confirm_kb)
-
-    await AddCard.next()
-
-
-async def add_card_4(message: Message, state: FSMContext) -> None:
-    async with state.proxy() as data:
         try:
             await add_card(user_id=message.from_user.id,
                            card_number=data['card_number'],
-                           card_nickname=data['card_nickname'])
+                           card_nickname=message.text)
         except:
             await message.answer(
                 text='Nickname of your card should be unique.\n'
                      'Choose another nickname (without spaces):',
                 reply_markup=cancel_kb
             )
-            await AddCard.card_nickname.set()
             return
 
-    await message.answer(text='Confirmed.',
+    await message.answer(text='Card added.',
                          reply_markup=start_kb)
     await state.finish()
 
