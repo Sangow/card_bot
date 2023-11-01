@@ -2,6 +2,7 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import CommandStart, Text
 
 from bot.states import AddCard, ShowCard
+from .inline_handlers import inline_echo
 from .service import validate_card_number, validate_card_nickname
 from .user_handlers import cmd_start, cmd_cancel, add_card_1, add_card_2, \
     add_card_2_fail, add_card_3, add_card_3_fail, show_nickname_list, \
@@ -56,3 +57,5 @@ async def register_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(delete_card_handler,
                                 Text(equals='❌'),
                                 state=ShowCard.edit_delete_card)
+
+    dp.register_inline_handler(callback=inline_echo)
