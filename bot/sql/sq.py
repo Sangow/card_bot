@@ -63,3 +63,11 @@ async def edit_card(
         (new_card_number, user_id, card_nickname)
     )
     db.commit()
+
+
+async def get_card_number_and_nick(user_id: str) -> list:
+    return cur.execute('SELECT card_nickname, card_number '
+                       'FROM cards '
+                       'WHERE user_id=(?)',
+                       (user_id,)
+                       ).fetchall()
