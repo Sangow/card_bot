@@ -1,6 +1,6 @@
 from aiogram.types import InlineQuery, InlineQueryResultArticle, \
     InputTextMessageContent
-import hashlib
+from uuid import uuid4
 
 from bot.sql import get_card_number_and_nick
 
@@ -10,7 +10,7 @@ async def inline_echo(query: InlineQuery) -> None:
 
     if not card_nicks_numbers:
         return await query.answer(results=[InlineQueryResultArticle(
-            id=hashlib.md5('None'.encode()).hexdigest(),
+            id=str(uuid4()),
             title='Oooops!',
             input_message_content=InputTextMessageContent(message_text='err'),
             description='You need to add a card!'
@@ -20,12 +20,13 @@ async def inline_echo(query: InlineQuery) -> None:
 
     for c_n_n in card_nicks_numbers:
         items.append(InlineQueryResultArticle(
-            id=hashlib.md5(c_n_n[0].encode()).hexdigest(),
+            id=str(uuid4()),
             title=c_n_n[0],
             input_message_content=InputTextMessageContent(
-                message_text=f'<code>{c_n_n[1]}</code>)',
-                parse_mode='html'),
-            thumb_height=30
+                message_text=f'⬇️<b>Tap to copy</b>⬇️\n\n'
+                             f'<code>{c_n_n[1]}</code>\n\n'
+                             f'⬆️<b>Tap to copy</b>⬆️',
+                parse_mode='html')
         ))
 
     await query.answer(results=items,
