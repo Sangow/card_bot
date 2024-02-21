@@ -55,7 +55,7 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 state=ShowCard.edit_card_number)
 
     dp.register_message_handler(delete_card_handler,
-                                Text(equals='❌'),
+                                Text(equals='🗑️'),
                                 state=ShowCard.edit_delete_card)
 
     dp.register_inline_handler(callback=inline_echo)

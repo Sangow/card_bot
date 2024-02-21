@@ -23,7 +23,7 @@ confirm_kb = ReplyKeyboardMarkup(keyboard=[
 edit_delete_kb = ReplyKeyboardMarkup(keyboard=[
     [
         KeyboardButton(text='✏️'),
-        KeyboardButton(text='❌')
+        KeyboardButton(text='🗑️')
     ],
     [
         KeyboardButton(text='CANCEL')
