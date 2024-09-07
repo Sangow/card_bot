@@ -4,7 +4,7 @@ from sqlite3 import connect
 async def start_db() -> None:
     global db, cur
 
-    db = connect(database='db.db')
+    db = connect(database='/data/db.db')
     cur = db.cursor()
 
     cur.execute(
