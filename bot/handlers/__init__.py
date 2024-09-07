@@ -4,10 +4,10 @@ from aiogram.dispatcher.filters import CommandStart, Text
 from bot.states import AddCard, ShowCard
 from .service import validate_card_number, validate_card_nickname
 from .user_handlers import cmd_start, cmd_cancel, add_card_1, add_card_2, \
-    add_card_2_fail, add_card_3, add_card_3_fail, \
-    show_nickname_list, show_card_number, edit_card_handler, \
-    delete_card_handler, edit_card_number_previous_handler, \
-    edit_card_number_fail_handler, edit_card_number_handler
+    add_card_2_fail, add_card_3, add_card_3_fail, show_nickname_list, \
+    show_card_number, edit_card_handler, delete_card_handler, \
+    edit_card_number_previous_handler, edit_card_number_fail_handler, \
+    edit_card_number_handler
 
 
 async def register_handlers(dp: Dispatcher) -> None:

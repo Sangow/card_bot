@@ -13,7 +13,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
         await state.finish()
 
     await message.answer(
-        text='Choose button:',
+        text='Welcome to card bot!',
         reply_markup=start_kb
     )
 
@@ -36,7 +36,7 @@ async def add_card_2_fail(message: Message) -> None:
 
 async def add_card_2(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
-        data['card_number'] = message.text
+        data['card_number'] = message.text.replace(' ', '')
 
     await message.answer(text='Enter card nickname (without spaces):')
 
@@ -87,7 +87,7 @@ async def show_card_number(message: Message, state: FSMContext) -> None:
 
     async with state.proxy() as data:
         data['card_nickname'] = card_nickname
-        data['card_number'] = card_number
+        # data['card_number'] = card_number
 
     await message.answer(
         text=f'<b>Nickname:</b> {card_nickname}\n\n'
@@ -111,12 +111,7 @@ async def edit_card_handler(message: Message) -> None:
 async def edit_card_number_previous_handler(
         message: Message,
         state: FSMContext) -> None:
-    async with state.proxy() as data:
-        await edit_card(user_id=message.from_user.id,
-                        card_nickname=data['card_nickname'],
-                        new_card_number=data['card_number'])
-
-    await message.answer(text='Card edited.',
+    await message.answer(text='Information saved.',
                          reply_markup=start_kb)
     await state.finish()
 
@@ -133,7 +128,7 @@ async def edit_card_number_handler(
                         card_nickname=data['card_nickname'],
                         new_card_number=message.text)
 
-    await message.answer(text='Card edited.',
+    await message.answer(text='Information saved.',
                          reply_markup=start_kb)
     await state.finish()
 
