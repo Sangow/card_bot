@@ -36,7 +36,7 @@ async def add_card_2_fail(message: Message) -> None:
 
 async def add_card_2(message: Message, state: FSMContext) -> None:
     async with state.proxy() as data:
-        data['card_number'] = message.text
+        data['card_number'] = message.text.replace(' ', '')
 
     await message.answer(text='Enter card nickname (without spaces):')
 
