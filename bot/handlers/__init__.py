@@ -4,10 +4,12 @@ from aiogram.dispatcher.filters import Command, CommandStart, Text
 from bot.keyboards import nav_cb, card_cb, cards_cb
 from bot.states import AddCard, ShowCard
 from .error_handlers import errors_handler
-from .service import validate_card_number, validate_card_nickname
+from .service import validate_card_number, validate_card_nickname, \
+    is_mir_card
 from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
     cmd_help, main_menu_handler, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, \
+    add_card_3_not_supported, edit_card_number_not_supported_handler, \
     show_cards_handler, show_card_handler, edit_card_handler, \
     edit_card_number_fail_handler, edit_card_number_handler, \
     rename_card_handler, rename_card_fail_handler, rename_card_save_handler, \
@@ -57,6 +59,9 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 lambda message:
                                 not validate_card_number(message.text),
                                 state=AddCard.card_number)
+    dp.register_message_handler(add_card_3_not_supported,
+                                lambda message: is_mir_card(message.text),
+                                state=AddCard.card_number)
     dp.register_message_handler(add_card_3,
                                 state=AddCard.card_number)
 
@@ -76,6 +81,9 @@ async def register_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(edit_card_number_fail_handler,
                                 lambda message:
                                 not validate_card_number(message.text),
+                                state=ShowCard.edit_card_number)
+    dp.register_message_handler(edit_card_number_not_supported_handler,
+                                lambda message: is_mir_card(message.text),
                                 state=ShowCard.edit_card_number)
     dp.register_message_handler(edit_card_number_handler,
                                 state=ShowCard.edit_card_number)

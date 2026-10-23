@@ -7,6 +7,7 @@ TEXTS = {
         'cancelled': 'Cancelled.',
         'enter_card_number': 'Enter card number:',
         'card_invalid': 'Credit card is invalid.',
+        'card_not_supported': 'Mir cards are not supported.',
         'enter_nickname': 'Enter card nickname (without spaces):',
         'choose_another_nickname': 'Choose another nickname '
                                    '(without spaces):',
@@ -65,6 +66,7 @@ TEXTS = {
         'cancelled': 'Скасовано.',
         'enter_card_number': 'Введіть номер картки:',
         'card_invalid': 'Недійсний номер картки.',
+        'card_not_supported': 'Картки «Мир» не підтримуються.',
         'enter_nickname': 'Введіть назву картки (без пробілів):',
         'choose_another_nickname': 'Оберіть іншу назву (без пробілів):',
         'nickname_not_unique': 'Назва картки має бути унікальною.\n'
