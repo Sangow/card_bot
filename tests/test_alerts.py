@@ -159,5 +159,5 @@ def test_alert_time_is_in_kyiv_time(chat, broken_list):
 
     assert 'UTC' not in alert.text
     # Either minute, in case the clock ticked over during the test
-    assert any(f'Час: {t:%d.%m %H:%M}' in alert.text
+    assert any(f'Дата/час: {t:%d.%m %H:%M}' in alert.text
                for t in (before, after, after + timedelta(seconds=0)))

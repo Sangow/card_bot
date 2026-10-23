@@ -35,9 +35,9 @@ TEXTS = {
         'card_deleted': 'Card deleted.',
         'error': 'Something went wrong. Please try again.',
         'alert': '⚠️ Error in the bot\n{error}\nAction: {action}\n'
-                 'Time: {time}\nDetails: fly logs -a card-bot',
+                 'Date/time: {time}\nDetails: fly logs -a card-bot',
         'alert_repeats': 'Happened {count} more times since the last alert',
-        'startup_alert': '✅ Bot started\nTime: {time}',
+        'startup_alert': '✅ Bot started\nDate/time: {time}',
         'alert_action_message': 'message',
         'alert_action_button': 'button press',
         'alert_action_other': 'other update',
@@ -110,10 +110,10 @@ TEXTS = {
         'card_deleted': 'Картку видалено.',
         'error': 'Щось пішло не так. Спробуйте ще раз.',
         'alert': '⚠️ Помилка в боті\n{error}\nДія: {action}\n'
-                 'Час: {time}\nПодробиці: fly logs -a card-bot',
+                 'Дата/час: {time}\nПодробиці: fly logs -a card-bot',
         'alert_repeats': 'Повторилася ще {count} раз(ів) з попереднього '
                          'сповіщення',
-        'startup_alert': '✅ Бот запущено\nЧас: {time}',
+        'startup_alert': '✅ Бот запущено\nДата/час: {time}',
         'alert_action_message': 'повідомлення',
         'alert_action_button': 'натискання кнопки',
         'alert_action_other': 'інше оновлення',
