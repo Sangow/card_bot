@@ -27,7 +27,7 @@ def test_add_card_rejects_invalid_number(chat, harness):
     chat.send('/add')
     replies = chat.send('1234')
 
-    assert replies[0].text == 'Credit card is invalid.'
+    assert replies[-1].text == 'Credit card is invalid.'
     assert chat.state() == 'AddCard:card_number'
     assert harness.rows() == []
 
@@ -105,11 +105,11 @@ def test_edit_card_number(chat, harness):
     add_card(chat, '4242424242424242', 'mono')
 
     chat.press('card:edit:1')
-    assert chat.send('1111')[0].text == 'Credit card is invalid.'
+    assert chat.send('1111')[-1].text == 'Credit card is invalid.'
 
     replies = chat.send('5555 5555 5555 4444')
 
-    assert replies[0].text == 'Information saved.'
+    assert replies[-1].text == 'Information saved.'
     assert harness.rows() == [('42', '5555555555554444', 'mono')]
 
 

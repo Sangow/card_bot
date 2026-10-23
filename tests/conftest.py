@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, types
 from cryptography.fernet import Fernet
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+import bot.handlers.hiding as hiding
 import bot.sql.sq as sq
 from bot import prepare_all
 
@@ -20,8 +21,10 @@ class Chat:
                      'language_code': language_code}
 
     def send(self, text: str) -> list:
+        self.last_message_id = next(self.harness.ids)
+
         return self.harness.process({'message': {
-            'message_id': next(self.harness.ids),
+            'message_id': self.last_message_id,
             'date': 0,
             'chat': {'id': self.user['id'], 'type': 'private'},
             'from': self.user,
@@ -95,6 +98,13 @@ class Harness:
 
         return [Reply(method, data) for method, data in self.calls[start:]]
 
+    def wait(self, seconds: float) -> list:
+        """Lets timers run for a while and returns what the bot did."""
+        start = len(self.calls)
+        self.loop.run_until_complete(asyncio.sleep(seconds))
+
+        return [Reply(method, data) for method, data in self.calls[start:]]
+
     def chat(self, user_id: int = 42, language_code: str = 'en') -> Chat:
         return Chat(self, user_id, language_code)
 
@@ -132,6 +142,9 @@ def harness(tmp_path, monkeypatch):
 
     yield h
 
+    for task, _ in hiding.pending.values():
+        task.cancel()
+    hiding.pending.clear()
     sq.db.close()
     h.loop.close()
 

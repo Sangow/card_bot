@@ -23,6 +23,8 @@ TEXTS = {
                      '⬇️<b>Tap to copy</b>⬇️\n\n'
                      '<code>{number}</code>\n\n'
                      '⬆️<b>Tap to copy</b>⬆️',
+        'card_hidden': '<b>Nickname:</b> {nickname}\n\n'
+                       '🔒 Number hidden',
         'enter_new_card_number': 'Enter new card number:',
         'enter_new_nickname': 'Enter new card nickname (without spaces):',
         'info_saved': 'Information saved.',
@@ -48,6 +50,7 @@ TEXTS = {
         'btn_back': '⬅️ Back',
         'btn_prev_page': '⬅️ Previous',
         'btn_next_page': 'Next ➡️',
+        'btn_show_number': '👁 Show number',
         'btn_edit_number': '🔢 Change number',
         'btn_edit_nickname': '🏷 Change nickname',
         'btn_delete': '❌ Delete',
@@ -77,6 +80,8 @@ TEXTS = {
                      '⬇️<b>Натисніть, щоб скопіювати</b>⬇️\n\n'
                      '<code>{number}</code>\n\n'
                      '⬆️<b>Натисніть, щоб скопіювати</b>⬆️',
+        'card_hidden': '<b>Назва:</b> {nickname}\n\n'
+                       '🔒 Номер приховано',
         'enter_new_card_number': 'Введіть новий номер картки:',
         'enter_new_nickname': 'Введіть нову назву картки (без пробілів):',
         'info_saved': 'Збережено.',
@@ -102,6 +107,7 @@ TEXTS = {
         'btn_back': '⬅️ Назад',
         'btn_prev_page': '⬅️ Попередні',
         'btn_next_page': 'Далі ➡️',
+        'btn_show_number': '👁 Показати номер',
         'btn_edit_number': '🔢 Змінити номер',
         'btn_edit_nickname': '🏷 Змінити назву',
         'btn_delete': '❌ Видалити',
