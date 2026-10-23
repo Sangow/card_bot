@@ -78,3 +78,12 @@ async def rename_card_by_id(
         (new_card_nickname, user_id, card_id)
     )
     db.commit()
+
+
+async def count_cards(user_id: str) -> int:
+    return cur.execute(
+        'SELECT COUNT(*) '
+        'FROM cards '
+        'WHERE user_id=(?)',
+        (user_id,)
+    ).fetchone()[0]
