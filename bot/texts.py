@@ -13,6 +13,8 @@ TEXTS = {
         'nickname_not_unique': 'Nickname of your card should be unique.\n'
                                'Choose another nickname (without spaces):',
         'card_added': 'Card added.',
+        'cards_limit': 'You can keep up to {limit} cards.\n'
+                       'Delete one to add a new one.',
         'no_cards': 'There is no card.',
         'choose_card': 'Choose your card:',
         'card_not_found': 'Card not found.',
@@ -62,6 +64,8 @@ TEXTS = {
         'nickname_not_unique': 'Назва картки має бути унікальною.\n'
                                'Оберіть іншу назву (без пробілів):',
         'card_added': 'Картку додано.',
+        'cards_limit': 'Можна зберегти не більше {limit} карток.\n'
+                       'Видаліть одну, щоб додати нову.',
         'no_cards': 'Карток немає.',
         'choose_card': 'Оберіть картку:',
         'card_not_found': 'Картку не знайдено.',
