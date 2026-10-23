@@ -9,6 +9,7 @@ from .user_handlers import cmd_start, cmd_cancel, main_menu_handler, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, \
     show_cards_handler, show_card_handler, edit_card_handler, \
     edit_card_number_fail_handler, edit_card_number_handler, \
+    rename_card_handler, rename_card_fail_handler, rename_card_save_handler, \
     confirm_delete_card_handler, delete_card_handler
 
 
@@ -61,6 +62,16 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 state=ShowCard.edit_card_number)
     dp.register_message_handler(edit_card_number_handler,
                                 state=ShowCard.edit_card_number)
+
+    dp.register_callback_query_handler(rename_card_handler,
+                                       card_cb.filter(action='rename'),
+                                       state='*')
+    dp.register_message_handler(rename_card_fail_handler,
+                                lambda message:
+                                not validate_card_nickname(message.text),
+                                state=ShowCard.edit_card_nickname)
+    dp.register_message_handler(rename_card_save_handler,
+                                state=ShowCard.edit_card_nickname)
 
     dp.register_callback_query_handler(confirm_delete_card_handler,
                                        card_cb.filter(action='confirm_delete'),
