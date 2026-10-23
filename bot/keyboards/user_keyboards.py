@@ -24,11 +24,12 @@ def cancel_ikb(lang: str) -> InlineKeyboardMarkup:
 
 
 def cards_ikb(cards: list, lang: str) -> InlineKeyboardMarkup:
-    ikm = InlineKeyboardMarkup(row_width=2)
+    # One card per row, so masked labels are not cut off on narrow screens
+    ikm = InlineKeyboardMarkup(row_width=1)
 
-    for card_id, card_nickname in cards:
+    for card_id, card_label in cards:
         ikm.insert(InlineKeyboardButton(
-            text=card_nickname,
+            text=card_label,
             callback_data=card_cb.new(action='show', card_id=card_id)
         ))
 

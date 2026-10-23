@@ -29,7 +29,7 @@ async def add_card(user_id: str, card_number: str, card_nickname: str) -> None:
 
 async def get_cards(user_id: str) -> list:
     return cur.execute(
-        'SELECT rowid, card_nickname '
+        'SELECT rowid, card_nickname, card_number '
         'FROM cards '
         'WHERE user_id=(?)',
         (user_id,)
