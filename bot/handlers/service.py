@@ -49,3 +49,13 @@ def card_label(card_nickname: str, card_number: str) -> str:
     brand = card_brand(card_number)
 
     return f'{label} · {brand}' if brand else label
+
+
+def format_card_number(card_number: str) -> str:
+    # Amex is printed as 4-6-5, everything else in groups of four
+    if card_brand(card_number) == 'Amex':
+        return ' '.join((card_number[:4], card_number[4:10],
+                         card_number[10:]))
+
+    return ' '.join(card_number[i:i + 4]
+                    for i in range(0, len(card_number), 4))
