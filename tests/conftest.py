@@ -8,7 +8,7 @@ from cryptography.fernet import Fernet
 
 import bot.handlers.hiding as hiding
 import bot.sql.sq as sq
-from bot import prepare_all
+from bot import prepare_all, shutdown_all
 from bot.sql.storage import SQLiteStorage
 
 
@@ -99,6 +99,15 @@ class Harness:
             self.dp.process_update(types.Update(**update)))
 
         return [Reply(method, data) for method, data in self.calls[start:]]
+
+    def restart(self) -> None:
+        """Starts the bot again on the same database, as after a deploy."""
+        self.loop.run_until_complete(shutdown_all(self.dp))
+        sq.db.close()
+
+        self.dp = Dispatcher(self.bot, storage=SQLiteStorage())
+        Dispatcher.set_current(self.dp)
+        self.loop.run_until_complete(prepare_all(self.dp))
 
     def wait(self, seconds: float) -> list:
         """Lets timers run for a while and returns what the bot did."""
