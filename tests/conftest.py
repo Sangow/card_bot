@@ -60,6 +60,8 @@ class Reply:
         self.method = method
         self.text = data.get('text', '')
         self.data = data
+        # Id of the message this call sent, or of the one it edited
+        self.message_id = data.get('message_id') or data.get('sent_id')
 
         markup = data.get('reply_markup')
         if isinstance(markup, str):
@@ -128,11 +130,16 @@ def harness(tmp_path, monkeypatch):
     h = Harness()
 
     async def fake_request(self, method, data=None, *args, **kwargs):
-        h.calls.append((method, data or {}))
+        data = dict(data or {})
+        h.calls.append((method, data))
         if method in ('sendMessage', 'editMessageText'):
-            return {'message_id': next(h.ids), 'date': 0,
-                    'chat': {'id': 1, 'type': 'private'},
-                    'text': (data or {}).get('text', '')}
+            sent_id = data.get('message_id') or next(h.ids)
+            if method == 'sendMessage':
+                data['sent_id'] = sent_id
+            return {'message_id': sent_id, 'date': 0,
+                    'chat': {'id': data.get('chat_id', 1),
+                             'type': 'private'},
+                    'text': data.get('text', '')}
         return True
 
     monkeypatch.setattr(Bot, 'request', fake_request)

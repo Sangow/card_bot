@@ -18,7 +18,7 @@ def test_add_card(chat, harness):
 
     replies = chat.send('mono')
 
-    assert replies[0].text == 'Card added.'
+    assert replies[-1].text == 'Card added.'
     assert chat.state() is None
     assert harness.rows() == [('42', '4242424242424242', 'mono')]
 
@@ -37,7 +37,7 @@ def test_add_card_rejects_duplicate_nickname(chat, harness):
 
     replies = add_card(chat, '5555555555554444', 'mono')
 
-    assert replies[0].text.startswith('Nickname of your card should be unique')
+    assert replies[-1].text.startswith('Nickname of your card should be unique')
     assert chat.state() == 'AddCard:card_nickname'
     assert len(harness.rows()) == 1
 
@@ -128,12 +128,12 @@ def test_rename_card(chat, harness):
     add_card(chat, '5555555555554444', 'privat')
 
     chat.press('card:rename:1')
-    assert chat.send('two words')[0].text.startswith('Choose another nickname')
-    assert chat.send('privat')[0].text.startswith('Nickname of your card')
+    assert chat.send('two words')[-1].text.startswith('Choose another')
+    assert chat.send('privat')[-1].text.startswith('Nickname of your card')
 
     replies = chat.send('black')
 
-    assert 'black' in replies[0].text
+    assert 'black' in replies[-1].text
     assert chat.state() is None
     assert ('42', '4242424242424242', 'black') in harness.rows()
 
@@ -173,7 +173,7 @@ def test_cards_limit_is_checked_before_saving(chat, harness, monkeypatch):
 
     replies = chat.send('mono')
 
-    assert replies[0].text.startswith('You can keep up to 1 cards')
+    assert replies[-1].text.startswith('You can keep up to 1 cards')
     assert len(harness.rows()) == 1
 
 
