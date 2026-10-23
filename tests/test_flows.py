@@ -11,7 +11,7 @@ def test_start_shows_menu_and_removes_old_keyboard(chat):
     assert replies[0].method == 'deleteMessage'
     assert replies[0].data['message_id'] == chat.last_message_id
     assert replies[1].markup == {'remove_keyboard': True}
-    assert replies[2].callbacks == ['nav:cards', 'nav:add']
+    assert replies[2].callbacks == ['nav:cards', 'nav:add', 'nav:about']
 
 
 def test_add_card(chat, harness):
@@ -221,7 +221,7 @@ def test_old_reply_keyboard_buttons_open_menu(chat):
         replies = [r for r in chat.send(text) if r.method != 'deleteMessage']
 
         assert replies[0].markup == {'remove_keyboard': True}
-        assert replies[1].callbacks == ['nav:cards', 'nav:add']
+        assert replies[1].callbacks == ['nav:cards', 'nav:add', 'nav:about']
 
 
 def test_ukrainian_user_gets_ukrainian_texts(harness):

@@ -30,7 +30,7 @@ def test_unknown_text_gets_menu(chat, text):
 
     assert [(r.method, r.text) for r in replies] == [
         ('sendMessage', 'I did not understand that. Use the buttons:')]
-    assert replies[0].callbacks == ['nav:cards', 'nav:add']
+    assert replies[0].callbacks == ['nav:cards', 'nav:add', 'nav:about']
 
 
 @pytest.mark.parametrize('text', ['4242 4242 4242 4242',
@@ -42,7 +42,7 @@ def test_card_number_outside_dialog_is_deleted(chat, harness, text):
     assert deleted(replies) == [chat.last_message_id]
     hint, = shown(replies)
     assert hint.text.startswith('Your message with a card number was deleted')
-    assert hint.callbacks == ['nav:cards', 'nav:add']
+    assert hint.callbacks == ['nav:cards', 'nav:add', 'nav:about']
     assert harness.rows() == []
 
 

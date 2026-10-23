@@ -8,8 +8,8 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, \
     InlineKeyboardMarkup
 from aiogram.utils.exceptions import MessageNotModified, TelegramAPIError
 
-from bot.keyboards import main_ikb, cancel_ikb, cards_ikb, card_ikb, edit_ikb, \
-    rename_ikb, delete_confirm_ikb
+from bot.keyboards import main_ikb, about_ikb, cancel_ikb, cards_ikb, \
+    card_ikb, edit_ikb, rename_ikb, delete_confirm_ikb
 from bot.config import MAX_CARDS, HIDE_AFTER
 from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
     edit_card_by_id, rename_card_by_id, count_cards, nickname_taken
@@ -177,6 +177,14 @@ async def main_menu_handler(call: CallbackQuery, state: FSMContext) -> None:
 
     await edit_message(call, text=t(lang, 'choose_action'),
                        reply_markup=main_ikb(lang))
+    await call.answer()
+
+
+async def about_handler(call: CallbackQuery) -> None:
+    lang = get_lang(call.from_user)
+
+    await edit_message(call, text=help_text(lang),
+                       reply_markup=about_ikb(lang))
     await call.answer()
 
 
