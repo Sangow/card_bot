@@ -1,10 +1,12 @@
 from sqlite3 import connect
 
+from bot.config import DB_PATH
+
 
 async def start_db() -> None:
     global db, cur
 
-    db = connect(database='/data/db.db')
+    db = connect(database=DB_PATH)
     cur = db.cursor()
 
     cur.execute(
@@ -17,24 +19,6 @@ async def start_db() -> None:
     db.commit()
 
 
-async def get_cards_nicknames(user_id: str) -> list:
-    return cur.execute(
-        'SELECT card_nickname '
-        'FROM cards '
-        'WHERE user_id=(?)',
-        (user_id,)
-    ).fetchall()
-
-
-async def get_card_number(user_id: str, card_nickname: str) -> str:
-    return cur.execute(
-        'SELECT card_number '
-        'FROM cards '
-        'WHERE user_id=(?) AND card_nickname=(?)',
-        (user_id, card_nickname)
-    ).fetchone()[0]
-
-
 async def add_card(user_id: str, card_number: str, card_nickname: str) -> None:
     cur.execute(
         'INSERT INTO cards VALUES (?, ?, ?)',
@@ -43,23 +27,41 @@ async def add_card(user_id: str, card_number: str, card_nickname: str) -> None:
     db.commit()
 
 
-async def delete_card(user_id: str, card_nickname: str) -> None:
+async def get_cards(user_id: str) -> list:
+    return cur.execute(
+        'SELECT rowid, card_nickname '
+        'FROM cards '
+        'WHERE user_id=(?)',
+        (user_id,)
+    ).fetchall()
+
+
+async def get_card(user_id: str, card_id: int) -> tuple | None:
+    return cur.execute(
+        'SELECT card_nickname, card_number '
+        'FROM cards '
+        'WHERE user_id=(?) AND rowid=(?)',
+        (user_id, card_id)
+    ).fetchone()
+
+
+async def delete_card_by_id(user_id: str, card_id: int) -> None:
     cur.execute(
         'DELETE FROM cards '
-        'WHERE user_id=(?) and card_nickname=(?)',
-        (user_id, card_nickname)
+        'WHERE user_id=(?) AND rowid=(?)',
+        (user_id, card_id)
     )
     db.commit()
 
 
-async def edit_card(
+async def edit_card_by_id(
         user_id: str,
-        card_nickname: str,
+        card_id: int,
         new_card_number: str) -> None:
     cur.execute(
         'UPDATE cards '
         'SET card_number=(?) '
-        'WHERE user_id=(?) AND card_nickname=(?)',
-        (new_card_number, user_id, card_nickname)
+        'WHERE user_id=(?) AND rowid=(?)',
+        (new_card_number, user_id, card_id)
     )
     db.commit()
