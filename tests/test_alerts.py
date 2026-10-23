@@ -147,3 +147,17 @@ def test_bot_starts_when_startup_alert_fails(harness, chat):
         Bot.send_message = original
 
     assert chat.send('/start')[1].text == 'Choose an action:'
+
+
+def test_alert_time_is_in_kyiv_time(chat, broken_list):
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+
+    before = datetime.now(ZoneInfo('Europe/Kyiv'))
+    alert, = alerts_in(chat.press('nav:cards'))
+    after = datetime.now(ZoneInfo('Europe/Kyiv'))
+
+    assert 'UTC' not in alert.text
+    # Either minute, in case the clock ticked over during the test
+    assert any(f'Дата/час: {t:%d.%m %H:%M}' in alert.text
+               for t in (before, after, after + timedelta(seconds=0)))

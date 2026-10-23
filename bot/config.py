@@ -13,5 +13,7 @@ ADMIN_CHAT_ID = int(getenv('ADMIN_CHAT_ID')) if getenv('ADMIN_CHAT_ID') \
 # Tell ADMIN_CHAT_ID when the bot starts, which also reveals unplanned
 # restarts; STARTUP_ALERT=0 turns it off and keeps the error alerts
 STARTUP_ALERT = getenv('STARTUP_ALERT', '1') != '0'
+# Time zone of the times in alerts
+ALERT_TIMEZONE = getenv('ALERT_TIMEZONE', 'Europe/Kyiv')
 # Seconds after which a shown card number is hidden again
 HIDE_AFTER = int(getenv('HIDE_AFTER', '120'))

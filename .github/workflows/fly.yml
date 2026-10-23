@@ -5,8 +5,11 @@ on:
     branches:
       - master
 
-env:
-  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+# Deploys run one at a time, in push order, so an older one cannot
+# finish after a newer one
+concurrency:
+  group: fly-deploy
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -17,8 +20,12 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      # Pinned to a commit, as it runs in the job that deploys
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # 1.6
 
+      # Only this step gets the Fly token
       - run: flyctl deploy --remote-only --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
