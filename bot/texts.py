@@ -72,9 +72,15 @@ TEXTS = {
 
 DEFAULT_LANG = 'en'
 
+# Languages without own texts that should get another language instead
+LANG_ALIASES = {
+    'ru': 'uk',
+}
+
 
 def get_lang(user: User) -> str:
     code = (user.language_code or '').split('-')[0]
+    code = LANG_ALIASES.get(code, code)
 
     return code if code in TEXTS else DEFAULT_LANG
 
