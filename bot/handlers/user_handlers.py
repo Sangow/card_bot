@@ -6,7 +6,7 @@ from sqlite3 import IntegrityError
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, \
     InlineKeyboardMarkup
-from aiogram.utils.exceptions import MessageNotModified
+from aiogram.utils.exceptions import MessageNotModified, TelegramAPIError
 
 from bot.keyboards import main_ikb, cancel_ikb, cards_ikb, card_ikb, edit_ikb, \
     rename_ikb, delete_confirm_ikb
@@ -15,6 +15,7 @@ from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
     edit_card_by_id, rename_card_by_id, count_cards
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
+from .hiding import schedule_hide, cancel_hide
 from .service import card_label, format_card_number
 
 CARDS_PER_PAGE = 5
@@ -23,11 +24,22 @@ CARDS_PER_PAGE = 5
 async def edit_message(call: CallbackQuery, text: str,
                        reply_markup: InlineKeyboardMarkup,
                        parse_mode: str = None) -> None:
+    # Whatever the message shows now, it is no longer the card number that
+    # was scheduled to be hidden
+    cancel_hide(call.message.chat.id, call.message.message_id)
+
     # Double taps edit the message to the same content, which Telegram rejects
     with suppress(MessageNotModified):
         await call.message.edit_text(text=text,
                                      parse_mode=parse_mode,
                                      reply_markup=reply_markup)
+
+
+async def delete_card_number_message(message: Message) -> None:
+    # The number should not stay in the chat history. Deleting may fail if
+    # the user already deleted the message
+    with suppress(TelegramAPIError):
+        await message.delete()
 
 
 def card_view_text(lang: str, card_nickname: str, card_number: str) -> str:
@@ -129,6 +141,8 @@ async def add_card_1(call: CallbackQuery, state: FSMContext) -> None:
 async def add_card_2_fail(message: Message) -> None:
     lang = get_lang(message.from_user)
 
+    await delete_card_number_message(message)
+
     await message.answer(text=t(lang, 'card_invalid'),
                          reply_markup=cancel_ikb(lang))
 
@@ -138,6 +152,8 @@ async def add_card_2(message: Message, state: FSMContext) -> None:
 
     async with state.proxy() as data:
         data['card_number'] = message.text.replace(' ', '')
+
+    await delete_card_number_message(message)
 
     await message.answer(text=t(lang, 'enter_nickname'),
                          reply_markup=cancel_ikb(lang))
@@ -251,6 +267,8 @@ async def show_card_handler(call: CallbackQuery,
         parse_mode='html',
         reply_markup=card_ikb(card_id, lang, page)
     )
+    schedule_hide(call.bot, call.message.chat.id, call.message.message_id,
+                  card_id, card_nickname, page, lang)
     await call.answer()
 
 
@@ -278,6 +296,8 @@ async def edit_card_number_fail_handler(message: Message,
     async with state.proxy() as data:
         card_id = data['card_id']
 
+    await delete_card_number_message(message)
+
     await message.answer(text=t(lang, 'card_invalid'),
                          reply_markup=edit_ikb(card_id, lang))
 
@@ -291,6 +311,8 @@ async def edit_card_number_handler(
         await edit_card_by_id(user_id=message.from_user.id,
                               card_id=data['card_id'],
                               new_card_number=message.text.replace(' ', ''))
+
+    await delete_card_number_message(message)
 
     await message.answer(text=t(lang, 'info_saved'),
                          reply_markup=main_ikb(lang))
@@ -353,9 +375,13 @@ async def rename_card_save_handler(message: Message,
     card_nickname, card_number = card
     page = await card_page(user_id=message.from_user.id, card_id=card_id)
 
-    await message.answer(text=card_view_text(lang, card_nickname, card_number),
-                         parse_mode='html',
-                         reply_markup=card_ikb(card_id, lang, page))
+    shown = await message.answer(
+        text=card_view_text(lang, card_nickname, card_number),
+        parse_mode='html',
+        reply_markup=card_ikb(card_id, lang, page)
+    )
+    schedule_hide(message.bot, shown.chat.id, shown.message_id,
+                  card_id, card_nickname, page, lang)
 
 
 async def confirm_delete_card_handler(call: CallbackQuery,

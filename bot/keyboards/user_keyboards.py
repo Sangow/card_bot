@@ -67,6 +67,18 @@ def card_ikb(card_id: int, lang: str,
                                 callback_data=cards_cb.new(page=page)))
 
 
+def hidden_card_ikb(card_id: int, lang: str,
+                    page: int = 0) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(row_width=2).add(
+        InlineKeyboardButton(
+            text=t(lang, 'btn_show_number'),
+            callback_data=card_cb.new(action='show', card_id=card_id)),
+        InlineKeyboardButton(
+            text=t(lang, 'btn_back'),
+            callback_data=cards_cb.new(page=page))
+    )
+
+
 def edit_ikb(card_id: int, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup().add(InlineKeyboardButton(
         text=t(lang, 'btn_leave_previous'),
