@@ -1,4 +1,6 @@
 from contextlib import suppress
+from html import escape
+from sqlite3 import IntegrityError
 
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, \
@@ -103,7 +105,7 @@ async def add_card_3(message: Message, state: FSMContext) -> None:
             await add_card(user_id=message.from_user.id,
                            card_number=data['card_number'],
                            card_nickname=message.text)
-        except:
+        except IntegrityError:
             await message.answer(
                 text=t(lang, 'nickname_not_unique'),
                 reply_markup=cancel_ikb(lang)
@@ -150,7 +152,8 @@ async def show_card_handler(call: CallbackQuery,
 
     await edit_message(
         call,
-        text=t(lang, 'card_view', nickname=card_nickname, number=card_number),
+        text=t(lang, 'card_view',
+               nickname=escape(card_nickname), number=card_number),
         parse_mode='html',
         reply_markup=card_ikb(card_id, lang)
     )
