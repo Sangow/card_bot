@@ -80,6 +80,11 @@ def migrate() -> None:
     finally:
         db.isolation_level = ''
 
+    if has_cards:
+        # Pages of the dropped table still hold the plain card numbers until
+        # they are overwritten, so rebuild the file without them
+        cur.execute('VACUUM')
+
 
 def check_key() -> None:
     row = cur.execute('SELECT card_number FROM cards LIMIT 1').fetchone()
