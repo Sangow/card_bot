@@ -23,6 +23,7 @@ Telegram-бот [@cardnumber_bot](https://t.me/cardnumber_bot), який збе�
 | `LOG_LEVEL` | ні | `INFO` | Рівень логування: `DEBUG`, `INFO`, `WARNING`, `ERROR` |
 | `MAX_CARDS` | ні | `20` | Скільки карток може зберегти один користувач |
 | `HIDE_AFTER` | ні | `120` | Через скільки секунд показаний номер ховається |
+| `ADMIN_CHAT_ID` | ні | — | Telegram chat id, куди бот надсилає сповіщення про помилки. Без нього сповіщень немає |
 
 На Fly вони задаються як секрети: `fly secrets set MAX_CARDS=30 -a card-bot`.
 
