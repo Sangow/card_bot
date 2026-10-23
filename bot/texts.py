@@ -38,6 +38,9 @@ TEXTS = {
                  'Date/time: {time}\nDetails: fly logs -a card-bot',
         'alert_repeats': 'Happened {count} more times since the last alert',
         'startup_alert': '✅ Bot started\nDate/time: {time}',
+        'stats': '📊 Statistics\nUsers with cards: {users}\nCards: {cards}\n'
+                 'Most per user: {most} of {limit}\n'
+                 'Unfinished dialogs: {dialogs}\nRunning since: {started}',
         'alert_action_message': 'message',
         'alert_action_button': 'button press',
         'alert_action_other': 'other update',
@@ -117,6 +120,9 @@ TEXTS = {
         'alert_repeats': 'Повторилася ще {count} раз(ів) з попереднього '
                          'сповіщення',
         'startup_alert': '✅ Бот запущено\nДата/час: {time}',
+        'stats': '📊 Статистика\nКористувачів з картками: {users}\n'
+                 'Карток: {cards}\nНайбільше в одного: {most} з {limit}\n'
+                 'Незавершених діалогів: {dialogs}\nБот працює з: {started}',
         'alert_action_message': 'повідомлення',
         'alert_action_button': 'натискання кнопки',
         'alert_action_other': 'інше оновлення',
