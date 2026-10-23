@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, types
 from cryptography.fernet import Fernet
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+import bot.handlers.hiding as hiding
 import bot.sql.sq as sq
 from bot import prepare_all
 
@@ -132,6 +133,9 @@ def harness(tmp_path, monkeypatch):
 
     yield h
 
+    for task, _ in hiding.pending.values():
+        task.cancel()
+    hiding.pending.clear()
     sq.db.close()
     h.loop.close()
 

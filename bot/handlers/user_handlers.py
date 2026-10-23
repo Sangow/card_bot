@@ -15,6 +15,7 @@ from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
     edit_card_by_id, rename_card_by_id, count_cards
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
+from .hiding import schedule_hide, cancel_hide
 from .service import card_label, format_card_number
 
 CARDS_PER_PAGE = 5
@@ -23,6 +24,10 @@ CARDS_PER_PAGE = 5
 async def edit_message(call: CallbackQuery, text: str,
                        reply_markup: InlineKeyboardMarkup,
                        parse_mode: str = None) -> None:
+    # Whatever the message shows now, it is no longer the card number that
+    # was scheduled to be hidden
+    cancel_hide(call.message.chat.id, call.message.message_id)
+
     # Double taps edit the message to the same content, which Telegram rejects
     with suppress(MessageNotModified):
         await call.message.edit_text(text=text,
@@ -251,6 +256,8 @@ async def show_card_handler(call: CallbackQuery,
         parse_mode='html',
         reply_markup=card_ikb(card_id, lang, page)
     )
+    schedule_hide(call.bot, call.message.chat.id, call.message.message_id,
+                  card_id, card_nickname, page, lang)
     await call.answer()
 
 
@@ -353,9 +360,13 @@ async def rename_card_save_handler(message: Message,
     card_nickname, card_number = card
     page = await card_page(user_id=message.from_user.id, card_id=card_id)
 
-    await message.answer(text=card_view_text(lang, card_nickname, card_number),
-                         parse_mode='html',
-                         reply_markup=card_ikb(card_id, lang, page))
+    shown = await message.answer(
+        text=card_view_text(lang, card_nickname, card_number),
+        parse_mode='html',
+        reply_markup=card_ikb(card_id, lang, page)
+    )
+    schedule_hide(message.bot, shown.chat.id, shown.message_id,
+                  card_id, card_nickname, page, lang)
 
 
 async def confirm_delete_card_handler(call: CallbackQuery,
