@@ -176,6 +176,13 @@ async def main_menu_handler(call: CallbackQuery, state: FSMContext) -> None:
     await call.answer()
 
 
+async def dismiss_handler(call: CallbackQuery) -> None:
+    # The Read button under an error message removes that message
+    with suppress(TelegramAPIError):
+        await call.message.delete()
+    await call.answer()
+
+
 async def add_card_1(call: CallbackQuery, state: FSMContext) -> None:
     lang = get_lang(call.from_user)
 
