@@ -1,10 +1,12 @@
 from sqlite3 import connect
 
+from bot.config import DB_PATH
+
 
 async def start_db() -> None:
     global db, cur
 
-    db = connect(database='/data/db.db')
+    db = connect(database=DB_PATH)
     cur = db.cursor()
 
     cur.execute(
