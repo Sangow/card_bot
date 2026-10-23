@@ -4,6 +4,7 @@ import json
 
 import pytest
 from aiogram import Bot, Dispatcher, types
+from cryptography.fernet import Fernet
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 import bot.sql.sq as sq
@@ -98,14 +99,21 @@ class Harness:
         return Chat(self, user_id, language_code)
 
     def rows(self) -> list:
+        """Cards as (user_id, decrypted number, nickname)."""
+        return [(user_id, sq.decrypt(card_number), card_nickname)
+                for user_id, card_number, card_nickname in self.raw_rows()]
+
+    def raw_rows(self) -> list:
+        """Cards exactly as they are stored in the database."""
         return sq.cur.execute(
-            'SELECT user_id, card_number, card_nickname FROM cards'
+            'SELECT user_id, card_number, card_nickname FROM cards ORDER BY id'
         ).fetchall()
 
 
 @pytest.fixture
 def harness(tmp_path, monkeypatch):
     monkeypatch.setattr(sq, 'DB_PATH', str(tmp_path / 'db.db'))
+    monkeypatch.setattr(sq, 'CARD_KEY', Fernet.generate_key().decode())
 
     h = Harness()
 
