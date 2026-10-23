@@ -351,3 +351,46 @@ def test_card_number_is_never_kept_in_state(chat):
     chat.press('card:edit:1')
     chat.send('1111')                    # invalid, asked again
     assert set(state_data(chat)) == {'card_id', 'prompt_id'}
+
+
+MIR_NUMBER = '2200 0000 0000 0004'
+
+
+def test_mir_number_is_otherwise_valid():
+    from bot.handlers.service import validate_card_number
+
+    assert validate_card_number(MIR_NUMBER)
+
+
+def test_mir_card_cannot_be_added(chat, harness):
+    chat.send('/add')
+    chat.send('mono')
+
+    replies = chat.send(MIR_NUMBER)
+
+    assert replies[0].method == 'deleteMessage'
+    assert replies[-1].text == 'Mir cards are not supported.'
+    assert chat.state() == 'AddCard:card_number'
+    assert harness.rows() == []
+
+    chat.send('4242424242424242')
+    assert harness.rows() == [('42', '4242424242424242', 'mono')]
+
+
+def test_card_number_cannot_be_changed_to_mir(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+    chat.press('card:edit:1')
+
+    replies = chat.send(MIR_NUMBER)
+
+    assert replies[-1].text == 'Mir cards are not supported.'
+    assert chat.state() == 'ShowCard:edit_card_number'
+    assert harness.rows() == [('42', '4242424242424242', 'mono')]
+
+
+def test_mir_rejection_in_ukrainian(harness):
+    chat = harness.chat(language_code='uk')
+    chat.send('/add')
+    chat.send('mono')
+
+    assert chat.send(MIR_NUMBER)[-1].text == 'Картки «Мир» не підтримуються.'
