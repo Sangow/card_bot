@@ -17,3 +17,11 @@
 # created by virtualenv automatically
 venv/**/*
 fly.toml
+
+# Not needed to run the bot
+.git
+.github
+tests
+**/__pycache__
+pytest.ini
+requirements-dev.txt
