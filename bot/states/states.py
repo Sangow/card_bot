@@ -7,7 +7,5 @@ class AddCard(StatesGroup):
 
 
 class ShowCard(StatesGroup):
-    show_card_number = State()
-    edit_delete_card = State()
     edit_card_number = State()
     edit_card_nickname = State()
