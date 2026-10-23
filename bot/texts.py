@@ -38,6 +38,9 @@ TEXTS = {
                  'Date/time: {time}\nDetails: fly logs -a card-bot',
         'alert_repeats': 'Happened {count} more times since the last alert',
         'startup_alert': '✅ Bot started\nDate/time: {time}',
+        'stats': '📊 Statistics\nUsers with cards: {users}\nCards: {cards}\n'
+                 'Most per user: {most} of {limit}\n'
+                 'Unfinished dialogs: {dialogs}\nRunning since: {started}',
         'alert_action_message': 'message',
         'alert_action_button': 'button press',
         'alert_action_other': 'other update',
@@ -49,13 +52,28 @@ TEXTS = {
         'send_number_as_text': 'Send the card number as text:',
         'private_only': 'I only work in private messages. '
                         'Open a chat with me to manage your cards.',
-        'help': 'Card bot keeps your card numbers so you can copy them '
-                'quickly.\n\n'
-                '/cards - your cards: tap one to see and copy the number, '
-                'change or delete it\n'
+        'help': 'Card bot keeps your card numbers so you can copy or send '
+                'them in one tap.\n\n'
+                '💳 My cards - tap a card to see and copy its number, '
+                'change it, rename or delete the card\n'
+                '➕ Add card - first a nickname, then the number\n'
+                '📤 Share - send a number to any chat; or type '
+                '@cardnumber_bot in that chat\n\n'
+                '🔒 Numbers are stored encrypted, a shown number is hidden '
+                'after {minutes} min, and messages with numbers are deleted '
+                'from the chat.\n\n'
+                '/cards - your cards\n'
                 '/add - add a card\n'
                 '/cancel - cancel the current action\n'
                 '/help - this help',
+        'description': 'Keep your bank card numbers and share them in one '
+                       'tap.\n\n'
+                       '🔒 Numbers are stored encrypted\n'
+                       '👁 A shown number hides itself after a few minutes\n'
+                       '📤 Share a card from any chat: @cardnumber_bot\n\n'
+                       'Tap Start to add your first card.',
+        'short_description': 'Keep your card numbers and share them in one '
+                             'tap. Numbers are stored encrypted.',
 
         'cmd_cards': 'My cards',
         'cmd_add': 'Add card',
@@ -64,6 +82,7 @@ TEXTS = {
 
         'btn_show_cards': '💳 Show cards',
         'btn_add_card': '➕ Add card',
+        'btn_about': 'ℹ️ About',
         'btn_cancel': '✖️ Cancel',
         'btn_back': '⬅️ Back',
         'btn_prev_page': '⬅️ Previous',
@@ -117,6 +136,9 @@ TEXTS = {
         'alert_repeats': 'Повторилася ще {count} раз(ів) з попереднього '
                          'сповіщення',
         'startup_alert': '✅ Бот запущено\nДата/час: {time}',
+        'stats': '📊 Статистика\nКористувачів з картками: {users}\n'
+                 'Карток: {cards}\nНайбільше в одного: {most} з {limit}\n'
+                 'Незавершених діалогів: {dialogs}\nБот працює з: {started}',
         'alert_action_message': 'повідомлення',
         'alert_action_button': 'натискання кнопки',
         'alert_action_other': 'інше оновлення',
@@ -129,12 +151,29 @@ TEXTS = {
         'private_only': 'Я працюю лише в особистих повідомленнях. '
                         'Відкрийте чат зі мною, щоб керувати картками.',
         'help': 'Card bot зберігає номери ваших карток, щоб їх можна було '
-                'швидко скопіювати.\n\n'
-                '/cards - ваші картки: натисніть на картку, щоб побачити й '
-                'скопіювати номер, змінити або видалити її\n'
+                'скопіювати чи надіслати в один дотик.\n\n'
+                '💳 Мої картки - натисніть на картку, щоб побачити й '
+                'скопіювати номер, змінити його, перейменувати чи видалити '
+                'картку\n'
+                '➕ Додати картку - спершу назва, потім номер\n'
+                '📤 Поділитися - надіслати номер у будь-який чат; або '
+                'напишіть у тому чаті @cardnumber_bot\n\n'
+                '🔒 Номери зберігаються зашифрованими, показаний номер '
+                'ховається через {minutes} хв, а повідомлення з номерами '
+                'видаляються з чату.\n\n'
+                '/cards - ваші картки\n'
                 '/add - додати картку\n'
                 '/cancel - скасувати поточну дію\n'
                 '/help - ця довідка',
+        'description': 'Зберігайте номери своїх банківських карток і '
+                       'діліться ними в один дотик.\n\n'
+                       '🔒 Номери зберігаються зашифрованими\n'
+                       '👁 Показаний номер ховається сам за кілька хвилин\n'
+                       '📤 Поділитися карткою можна з будь-якого чату: '
+                       '@cardnumber_bot\n\n'
+                       'Натисніть «Почати», щоб додати першу картку.',
+        'short_description': 'Зберігайте номери карток і діліться ними в '
+                             'один дотик. Номери зберігаються зашифрованими.',
 
         'cmd_cards': 'Мої картки',
         'cmd_add': 'Додати картку',
@@ -143,6 +182,7 @@ TEXTS = {
 
         'btn_show_cards': '💳 Мої картки',
         'btn_add_card': '➕ Додати картку',
+        'btn_about': 'ℹ️ Про бота',
         'btn_cancel': '✖️ Скасувати',
         'btn_back': '⬅️ Назад',
         'btn_prev_page': '⬅️ Попередні',

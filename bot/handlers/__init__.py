@@ -4,6 +4,7 @@ from aiogram.types import ContentTypes
 
 from bot.keyboards import nav_cb, card_cb, cards_cb
 from bot.states import AddCard, ShowCard
+from .admin import is_admin, cmd_stats
 from .error_handlers import errors_handler
 from .inline import inline_cards_handler
 from .fallback import non_text_in_dialog_handler, \
@@ -15,7 +16,7 @@ from .private_only import not_private, group_message_handler, \
 from .service import validate_card_number, validate_card_nickname, \
     is_mir_card, looks_like_card_number
 from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
-    cmd_help, main_menu_handler, dismiss_handler, \
+    cmd_help, main_menu_handler, about_handler, dismiss_handler, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, \
     add_card_3_not_supported, edit_card_number_not_supported_handler, \
     show_cards_handler, show_card_handler, edit_card_handler, \
@@ -56,6 +57,11 @@ async def register_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(cmd_help,
                                 Command('help'),
                                 state='*')
+    # Only for the bot owner; anyone else gets the usual "not understood"
+    dp.register_message_handler(cmd_stats,
+                                Command('stats'),
+                                is_admin,
+                                state='*')
     # Buttons of the old reply keyboard
     dp.register_message_handler(cmd_start,
                                 Text(equals=['show cards', 'add card'],
@@ -64,6 +70,9 @@ async def register_handlers(dp: Dispatcher) -> None:
 
     dp.register_callback_query_handler(main_menu_handler,
                                        nav_cb.filter(to='main'),
+                                       state='*')
+    dp.register_callback_query_handler(about_handler,
+                                       nav_cb.filter(to='about'),
                                        state='*')
     dp.register_callback_query_handler(dismiss_handler,
                                        nav_cb.filter(to='dismiss'),

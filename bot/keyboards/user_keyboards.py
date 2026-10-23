@@ -14,6 +14,14 @@ def main_ikb(lang: str) -> InlineKeyboardMarkup:
                              callback_data=nav_cb.new(to='cards')),
         InlineKeyboardButton(text=t(lang, 'btn_add_card'),
                              callback_data=nav_cb.new(to='add'))
+    ).add(InlineKeyboardButton(text=t(lang, 'btn_about'),
+                               callback_data=nav_cb.new(to='about')))
+
+
+def about_ikb(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup().add(
+        InlineKeyboardButton(text=t(lang, 'btn_back'),
+                             callback_data=nav_cb.new(to='main'))
     )
 
 
