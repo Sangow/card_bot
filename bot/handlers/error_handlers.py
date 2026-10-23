@@ -8,6 +8,7 @@ from aiogram import Bot
 from aiogram.types import Update
 
 from bot.config import ADMIN_CHAT_ID, STARTUP_ALERT, ALERT_TIMEZONE
+from bot.keyboards import read_ikb
 from bot.texts import t, get_lang
 
 logger = logging.getLogger(__name__)
@@ -60,7 +61,9 @@ async def notify_admin(update: Update, exception: Exception) -> None:
 
     # A broken alert must not hide the error it reports
     try:
-        await Bot.get_current().send_message(chat_id=ADMIN_CHAT_ID, text=text)
+        await Bot.get_current().send_message(
+            chat_id=ADMIN_CHAT_ID, text=text,
+            reply_markup=read_ikb(ALERT_LANG))
     except Exception:
         logger.exception('Failed to send error alert')
 
@@ -90,7 +93,8 @@ async def errors_handler(update: Update, exception: Exception) -> bool:
                                                show_alert=True)
         elif update.message:
             lang = get_lang(update.message.from_user)
-            await update.message.answer(text=t(lang, 'error'))
+            await update.message.answer(text=t(lang, 'error'),
+                                        reply_markup=read_ikb(lang))
 
     await notify_admin(update, exception)
 

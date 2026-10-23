@@ -161,3 +161,34 @@ def test_alert_time_is_in_kyiv_time(chat, broken_list):
     # Either minute, in case the clock ticked over during the test
     assert any(f'Дата/час: {t:%d.%m %H:%M}' in alert.text
                for t in (before, after, after + timedelta(seconds=0)))
+
+
+def test_admin_alert_has_read_button(chat, broken_list):
+    alert, = alerts_in(chat.press('nav:cards'))
+
+    assert alert.buttons == [[('✅ Прочитано', 'nav:dismiss')]]
+
+
+def test_user_error_message_has_read_button(chat, monkeypatch):
+    async def broken(**kwargs):
+        raise RuntimeError('db is down')
+
+    monkeypatch.setattr(user_handlers, 'nickname_taken', broken)
+    chat.send('/add')
+
+    replies = chat.send('mono')
+
+    error, = [r for r in replies if r.text.startswith('Something went wrong')]
+    assert error.buttons == [[('✅ Read', 'nav:dismiss')]]
+
+
+def test_read_button_deletes_the_message(chat):
+    chat.send('/add')
+
+    replies = chat.press('nav:dismiss')
+
+    assert [r.method for r in replies] == ['deleteMessage',
+                                           'answerCallbackQuery']
+    assert replies[0].data['message_id'] == 1
+    # Whatever the user was doing goes on
+    assert chat.state() == 'AddCard:card_nickname'
