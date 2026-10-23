@@ -93,3 +93,58 @@ def test_works_in_the_middle_of_a_dialog(harness, chat):
 
     assert len(results) == 1
     assert chat.state() == 'AddCard:card_nickname'
+
+
+def test_exact_nickname_lists_only_that_card(harness, chat):
+    add_card(chat, '4242424242424242', 'mono')
+    add_card(chat, '5555555555554444', 'mono_black')
+
+    _, results = inline(harness, chat, 'Mono')
+
+    assert titles(results) == ['mono •••• 4242 · Visa']
+
+
+def test_part_of_nickname_still_lists_all_matches(harness, chat):
+    add_card(chat, '4242424242424242', 'mono')
+    add_card(chat, '5555555555554444', 'mono_black')
+
+    _, results = inline(harness, chat, 'mon')
+
+    assert titles(results) == ['mono •••• 4242 · Visa',
+                               'mono_black •••• 4444 · MC']
+
+
+def test_card_view_has_share_button_first(chat):
+    add_card(chat, '4242424242424242', 'mono')
+
+    view = chat.press('card:show:1')[0]
+
+    assert view.buttons[0] == [('📤 Share', 'inline:mono')]
+
+
+def test_share_button_follows_rename(chat):
+    add_card(chat, '4242424242424242', 'mono')
+    chat.press('card:rename:1')
+
+    view = chat.send('black')[-1]
+
+    assert view.buttons[0] == [('📤 Share', 'inline:black')]
+
+
+def test_share_button_in_ukrainian(harness):
+    chat = harness.chat(language_code='uk')
+    add_card(chat, '4242424242424242', 'mono')
+
+    view = chat.press('card:show:1')[0]
+
+    assert view.buttons[0] == [('📤 Поділитися', 'inline:mono')]
+
+
+def test_share_button_offers_just_that_card(harness, chat):
+    add_card(chat, '4242424242424242', 'mono')
+    add_card(chat, '5555555555554444', 'mono_black')
+    share_query = chat.press('card:show:1')[0].buttons[0][0][1]
+
+    _, results = inline(harness, chat, share_query.removeprefix('inline:'))
+
+    assert titles(results) == ['mono •••• 4242 · Visa']
