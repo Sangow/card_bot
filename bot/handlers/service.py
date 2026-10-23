@@ -1,3 +1,6 @@
+import re
+
+
 def validate_card_number(card_number: str) -> bool:
     cn_no_spaces = card_number.replace(' ', '')
 
@@ -78,3 +81,12 @@ MIR_PREFIXES = ('2200', '2201', '2202', '2203', '2204')
 
 def is_mir_card(card_number: str) -> bool:
     return card_number.replace(' ', '').startswith(MIR_PREFIXES)
+
+
+def looks_like_card_number(text: str) -> bool:
+    # Broader than validate_card_number on purpose: a number with a typo
+    # is just as private
+    if not re.fullmatch(r'[\d\s-]+', text):
+        return False
+
+    return 12 <= sum(ch.isdigit() for ch in text) <= 19
