@@ -17,6 +17,7 @@ TEXTS = {
                        'Delete one to add a new one.',
         'no_cards': 'There is no card.',
         'choose_card': 'Choose your card:',
+        'choose_card_page': 'Choose your card ({page}/{pages}):',
         'card_not_found': 'Card not found.',
         'card_view': '<b>Nickname:</b> {nickname}\n\n'
                      '⬇️<b>Tap to copy</b>⬇️\n\n'
@@ -45,6 +46,8 @@ TEXTS = {
         'btn_add_card': '➕ Add card',
         'btn_cancel': '✖️ Cancel',
         'btn_back': '⬅️ Back',
+        'btn_prev_page': '⬅️ Previous',
+        'btn_next_page': 'Next ➡️',
         'btn_edit_number': '🔢 Change number',
         'btn_edit_nickname': '🏷 Change nickname',
         'btn_delete': '❌ Delete',
@@ -68,6 +71,7 @@ TEXTS = {
                        'Видаліть одну, щоб додати нову.',
         'no_cards': 'Карток немає.',
         'choose_card': 'Оберіть картку:',
+        'choose_card_page': 'Оберіть картку ({page}/{pages}):',
         'card_not_found': 'Картку не знайдено.',
         'card_view': '<b>Назва:</b> {nickname}\n\n'
                      '⬇️<b>Натисніть, щоб скопіювати</b>⬇️\n\n'
@@ -96,6 +100,8 @@ TEXTS = {
         'btn_add_card': '➕ Додати картку',
         'btn_cancel': '✖️ Скасувати',
         'btn_back': '⬅️ Назад',
+        'btn_prev_page': '⬅️ Попередні',
+        'btn_next_page': 'Далі ➡️',
         'btn_edit_number': '🔢 Змінити номер',
         'btn_edit_nickname': '🏷 Змінити назву',
         'btn_delete': '❌ Видалити',
