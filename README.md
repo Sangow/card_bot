@@ -90,7 +90,7 @@ SQLite у `/data/db.db`.
 fly ssh sftp get /data/db.db ./db-backup.db -a card-bot
 ```
 
-Номери в бекапі зашифровані, тож без `CARD_KEY` він безпечний. Fly також щодня робить знімки тому й тримає їх 5 днів (`fly volumes snapshots list <vol_id> -a card-bot`).
+Номери в бекапі зашифровані, тож без `CARD_KEY` він безпечний. Fly також щодня робить знімки тому й тримає їх 30 днів (`fly volumes snapshots list <vol_id> -a card-bot`).
 
 ### Відновлення з бекапу
 
