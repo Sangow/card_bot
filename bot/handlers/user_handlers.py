@@ -9,8 +9,9 @@ from aiogram.utils.exceptions import MessageNotModified
 
 from bot.keyboards import main_ikb, cancel_ikb, cards_ikb, card_ikb, edit_ikb, \
     rename_ikb, delete_confirm_ikb
+from bot.config import MAX_CARDS
 from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
-    edit_card_by_id, rename_card_by_id
+    edit_card_by_id, rename_card_by_id, count_cards
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .service import card_label, format_card_number
@@ -30,6 +31,10 @@ def card_view_text(lang: str, card_nickname: str, card_number: str) -> str:
     return t(lang, 'card_view',
              nickname=escape(card_nickname),
              number=format_card_number(card_number))
+
+
+async def cards_limit_reached(user_id: int) -> bool:
+    return await count_cards(user_id=user_id) >= MAX_CARDS
 
 
 async def cmd_start(message: Message, state: FSMContext) -> None:
@@ -75,6 +80,11 @@ async def cmd_add(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
+    if await cards_limit_reached(user_id=message.from_user.id):
+        await message.answer(text=t(lang, 'cards_limit', limit=MAX_CARDS),
+                             reply_markup=main_ikb(lang))
+        return
+
     await message.answer(text=t(lang, 'enter_card_number'),
                          reply_markup=cancel_ikb(lang))
     await AddCard.card_number.set()
@@ -100,6 +110,12 @@ async def add_card_1(call: CallbackQuery, state: FSMContext) -> None:
     lang = get_lang(call.from_user)
 
     await state.finish()
+
+    if await cards_limit_reached(user_id=call.from_user.id):
+        await edit_message(call, text=t(lang, 'cards_limit', limit=MAX_CARDS),
+                           reply_markup=main_ikb(lang))
+        await call.answer()
+        return
 
     await edit_message(call, text=t(lang, 'enter_card_number'),
                        reply_markup=cancel_ikb(lang))
@@ -135,6 +151,13 @@ async def add_card_3_fail(message: Message) -> None:
 
 async def add_card_3(message: Message, state: FSMContext) -> None:
     lang = get_lang(message.from_user)
+
+    # Checked again in case several cards were being added at once
+    if await cards_limit_reached(user_id=message.from_user.id):
+        await state.finish()
+        await message.answer(text=t(lang, 'cards_limit', limit=MAX_CARDS),
+                             reply_markup=main_ikb(lang))
+        return
 
     async with state.proxy() as data:
         try:
