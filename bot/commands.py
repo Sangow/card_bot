@@ -29,3 +29,33 @@ async def set_commands(bot: Bot) -> None:
                                       language_code=alias)
     except TelegramAPIError:
         logger.exception('Failed to set bot commands')
+
+
+def bot_languages() -> list:
+    """Language codes to set per-language texts for; None is the default."""
+    return [None, *TEXTS, *LANG_ALIASES]
+
+
+def text_language(language_code: str | None) -> str:
+    if language_code is None:
+        return DEFAULT_LANG
+
+    return LANG_ALIASES.get(language_code, language_code)
+
+
+async def set_descriptions(bot: Bot) -> None:
+    # aiogram 2 has no methods for these, so the Bot API is called directly.
+    # Like the menu, failing to set them must not stop the bot
+    try:
+        for language_code in bot_languages():
+            lang = text_language(language_code)
+            extra = {'language_code': language_code} if language_code else {}
+
+            # Shown in an empty chat before the user taps Start
+            await bot.request('setMyDescription', {
+                'description': t(lang, 'description'), **extra})
+            # Shown in the bot's profile and when its link is shared
+            await bot.request('setMyShortDescription', {
+                'short_description': t(lang, 'short_description'), **extra})
+    except TelegramAPIError:
+        logger.exception('Failed to set bot description')
