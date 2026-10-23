@@ -10,6 +10,14 @@ async def inline_cards_handler(query: InlineQuery) -> None:
     lang = get_lang(query.from_user)
     wanted = query.query.strip().casefold()
 
+    cards = await get_cards(user_id=query.from_user.id)
+
+    # Nicknames are unique per user, so an exact match means that one card:
+    # the Share button relies on it to offer just the card it was pressed on
+    exact = [card for card in cards if card[1].casefold() == wanted]
+    if wanted and exact:
+        cards = exact
+
     results = [
         InlineQueryResultArticle(
             id=str(card_id),
@@ -21,8 +29,7 @@ async def inline_cards_handler(query: InlineQuery) -> None:
                 parse_mode='html'
             )
         )
-        for card_id, card_nickname, card_number
-        in await get_cards(user_id=query.from_user.id)
+        for card_id, card_nickname, card_number in cards
         if wanted in card_nickname.casefold()
     ]
 

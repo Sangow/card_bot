@@ -93,3 +93,22 @@ def test_works_in_the_middle_of_a_dialog(harness, chat):
 
     assert len(results) == 1
     assert chat.state() == 'AddCard:card_nickname'
+
+
+def test_exact_nickname_lists_only_that_card(harness, chat):
+    add_card(chat, '4242424242424242', 'mono')
+    add_card(chat, '5555555555554444', 'mono_black')
+
+    _, results = inline(harness, chat, 'Mono')
+
+    assert titles(results) == ['mono •••• 4242 · Visa']
+
+
+def test_part_of_nickname_still_lists_all_matches(harness, chat):
+    add_card(chat, '4242424242424242', 'mono')
+    add_card(chat, '5555555555554444', 'mono_black')
+
+    _, results = inline(harness, chat, 'mon')
+
+    assert titles(results) == ['mono •••• 4242 · Visa',
+                               'mono_black •••• 4444 · MC']
