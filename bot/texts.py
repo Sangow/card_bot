@@ -77,6 +77,7 @@ TEXTS = {
         'btn_yes_delete': '✅ Yes, delete',
         'btn_no': '↩️ No',
         'btn_read': '✅ Read',
+        'inline_add_card': 'Add a card in the bot',
     },
     'uk': {
         'welcome': 'Вітаю в card bot!',
@@ -154,6 +155,7 @@ TEXTS = {
         'btn_yes_delete': '✅ Так, видалити',
         'btn_no': '↩️ Ні',
         'btn_read': '✅ Прочитано',
+        'inline_add_card': 'Додати картку в боті',
     },
 }
 
