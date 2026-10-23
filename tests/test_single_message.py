@@ -27,7 +27,7 @@ def test_adding_from_button_edits_one_message(chat):
 
 
 def test_adding_from_command_edits_the_prompt(chat):
-    prompt, = chat.send('/add')
+    deleted_command, prompt = chat.send('/add')
     replies = chat.send('mono')
     replies += chat.send('4242424242424242')
 

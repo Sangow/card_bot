@@ -178,7 +178,7 @@ def test_cards_limit(chat, harness, monkeypatch):
     add_card(chat, '4242424242424242', 'a')
     add_card(chat, '5555555555554444', 'b')
 
-    assert chat.send('/add')[0].text.startswith('You can keep up to 2 cards')
+    assert chat.send('/add')[-1].text.startswith('You can keep up to 2 cards')
     assert chat.press('nav:add')[0].text.startswith('You can keep up to 2')
     assert chat.state() is None
 
@@ -212,7 +212,7 @@ def test_help_keeps_current_input(chat):
     chat.send('/add')
     replies = chat.send('/help')
 
-    assert '/cards' in replies[0].text
+    assert '/cards' in replies[-1].text
     assert chat.state() == 'AddCard:card_nickname'
 
 
@@ -485,3 +485,4 @@ def test_other_users_may_use_the_same_nickname_in_any_case(harness):
     add_card(second, '5555555555554444', 'MONO')
 
     assert ('2', '5555555555554444', 'MONO') in harness.rows()
+

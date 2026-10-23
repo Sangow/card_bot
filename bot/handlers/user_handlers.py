@@ -101,7 +101,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
-    # Keeps the chat to the bot's menu, without the user's /start
+    # Commands are deleted, so the chat keeps only the bot's messages
     await delete_user_message(message)
 
     # Removes the old reply keyboard for users who still have it
@@ -117,6 +117,8 @@ async def cmd_cancel(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
+    await delete_user_message(message)
+
     await message.answer(text=t(lang, 'cancelled'),
                          reply_markup=ReplyKeyboardRemove())
     await message.answer(text=t(lang, 'choose_action'),
@@ -129,6 +131,8 @@ async def cmd_cards(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
+    await delete_user_message(message)
+
     text, reply_markup = await cards_list(user_id=message.from_user.id,
                                           lang=lang)
 
@@ -140,6 +144,8 @@ async def cmd_add(message: Message, state: FSMContext) -> None:
 
     if await state.get_state():
         await state.finish()
+
+    await delete_user_message(message)
 
     if await cards_limit_reached(user_id=message.from_user.id):
         await message.answer(text=t(lang, 'cards_limit', limit=MAX_CARDS),
@@ -154,6 +160,8 @@ async def cmd_add(message: Message, state: FSMContext) -> None:
 
 async def cmd_help(message: Message) -> None:
     lang = get_lang(message.from_user)
+
+    await delete_user_message(message)
 
     await message.answer(text=t(lang, 'help'), reply_markup=main_ikb(lang))
 
