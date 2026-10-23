@@ -331,3 +331,23 @@ def test_ukrainian_page_buttons(harness):
 
     assert reply.text == 'Оберіть картку (1/2):'
     assert reply.buttons[-2] == [('Далі ➡️', 'cards:1')]
+
+
+def state_data(chat) -> dict:
+    return chat.harness.loop.run_until_complete(
+        chat.harness.dp.current_state(chat=chat.user['id'],
+                                      user=chat.user['id']).get_data())
+
+
+def test_card_number_is_never_kept_in_state(chat):
+    chat.send('/add')
+    chat.send('mono')
+    chat.send('4242 4242 4242 4241')     # invalid, asked again
+    assert '4242' not in str(state_data(chat))
+
+    chat.send('4242 4242 4242 4242')
+    assert state_data(chat) == {}
+
+    chat.press('card:edit:1')
+    chat.send('1111')                    # invalid, asked again
+    assert set(state_data(chat)) == {'card_id', 'prompt_id'}
