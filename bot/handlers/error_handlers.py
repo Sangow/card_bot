@@ -6,7 +6,7 @@ from time import monotonic
 from aiogram import Bot
 from aiogram.types import Update
 
-from bot.config import ADMIN_CHAT_ID
+from bot.config import ADMIN_CHAT_ID, STARTUP_ALERT
 from bot.texts import t, get_lang
 
 logger = logging.getLogger(__name__)
@@ -18,6 +18,10 @@ ALERT_LANG = 'uk'
 
 # Error description -> (when it was last reported, times it repeated since)
 alerts = {}
+
+
+def now_utc() -> str:
+    return datetime.now(timezone.utc).strftime('%d.%m %H:%M')
 
 
 def describe(exception: Exception) -> str:
@@ -49,7 +53,7 @@ async def notify_admin(update: Update, exception: Exception) -> None:
     alerts[error] = (now, 0)
 
     text = t(ALERT_LANG, 'alert', error=error, action=action_of(update),
-             time=datetime.now(timezone.utc).strftime('%d.%m %H:%M'))
+             time=now_utc())
     if repeats:
         text += '\n' + t(ALERT_LANG, 'alert_repeats', count=repeats)
 
@@ -58,6 +62,19 @@ async def notify_admin(update: Update, exception: Exception) -> None:
         await Bot.get_current().send_message(chat_id=ADMIN_CHAT_ID, text=text)
     except Exception:
         logger.exception('Failed to send error alert')
+
+
+async def notify_startup(bot: Bot) -> None:
+    if ADMIN_CHAT_ID is None or not STARTUP_ALERT:
+        return
+
+    # The bot must start even if the alert cannot be sent
+    try:
+        await bot.send_message(chat_id=ADMIN_CHAT_ID,
+                               text=t(ALERT_LANG, 'startup_alert',
+                                      time=now_utc()))
+    except Exception:
+        logger.exception('Failed to send startup alert')
 
 
 async def errors_handler(update: Update, exception: Exception) -> bool:

@@ -37,6 +37,7 @@ TEXTS = {
         'alert': '⚠️ Error in the bot\n{error}\nAction: {action}\n'
                  'Time: {time} UTC\nDetails: fly logs -a card-bot',
         'alert_repeats': 'Happened {count} more times since the last alert',
+        'startup_alert': '✅ Bot started\nTime: {time} UTC',
         'alert_action_message': 'message',
         'alert_action_button': 'button press',
         'alert_action_other': 'other update',
@@ -112,6 +113,7 @@ TEXTS = {
                  'Час: {time} UTC\nПодробиці: fly logs -a card-bot',
         'alert_repeats': 'Повторилася ще {count} раз(ів) з попереднього '
                          'сповіщення',
+        'startup_alert': '✅ Бот запущено\nЧас: {time} UTC',
         'alert_action_message': 'повідомлення',
         'alert_action_button': 'натискання кнопки',
         'alert_action_other': 'інше оновлення',
