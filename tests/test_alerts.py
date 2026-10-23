@@ -121,6 +121,7 @@ def test_startup_is_reported_to_admin(harness):
 
     alert, = admin_messages(harness)
     assert alert.text.startswith('✅ Бот запущено')
+    assert alert.buttons == [[('✅ Прочитано', 'nav:dismiss')]]
 
 
 def test_startup_alert_can_be_turned_off(harness, monkeypatch):

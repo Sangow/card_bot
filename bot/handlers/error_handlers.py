@@ -76,7 +76,8 @@ async def notify_startup(bot: Bot) -> None:
     try:
         await bot.send_message(chat_id=ADMIN_CHAT_ID,
                                text=t(ALERT_LANG, 'startup_alert',
-                                      time=local_time()))
+                                      time=local_time()),
+                               reply_markup=read_ikb(ALERT_LANG))
     except Exception:
         logger.exception('Failed to send startup alert')
 
