@@ -17,3 +17,9 @@ STARTUP_ALERT = getenv('STARTUP_ALERT', '1') != '0'
 ALERT_TIMEZONE = getenv('ALERT_TIMEZONE', 'Europe/Kyiv')
 # Seconds after which a shown card number is hidden again
 HIDE_AFTER = int(getenv('HIDE_AFTER', '120'))
+# Where Telegram fetches the card icons shown in inline mode: the repo's
+# assets/card-icons on the branch that is deployed
+CARD_ICONS_URL = getenv(
+    'CARD_ICONS_URL',
+    'https://raw.githubusercontent.com/Sangow/card_bot/master/assets/card-icons'
+)

@@ -58,6 +58,18 @@ def card_brand(card_number: str) -> str | None:
     return None
 
 
+# Icon file under assets/card-icons for each brand card_brand() returns
+BRAND_ICONS = {
+    'Visa': 'visa', 'MC': 'mc', 'ПРОСТІР': 'prostir', 'Amex': 'amex',
+    'Maestro': 'maestro', 'UnionPay': 'unionpay', 'JCB': 'jcb',
+    'Discover': 'discover',
+}
+
+
+def card_icon(card_number: str) -> str:
+    return BRAND_ICONS.get(card_brand(card_number), 'unknown')
+
+
 def card_label(card_nickname: str, card_number: str) -> str:
     label = f'{card_nickname} •••• {card_number[-4:]}'
     brand = card_brand(card_number)

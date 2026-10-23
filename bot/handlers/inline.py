@@ -1,9 +1,35 @@
 from aiogram.types import InlineQuery, InlineQueryResultArticle, \
     InputTextMessageContent
 
+from bot.config import CARD_ICONS_URL
 from bot.sql import get_cards
 from bot.texts import t, get_lang
-from .service import card_label, format_card_number
+from .service import card_label, card_icon, format_card_number
+
+ICON_SIZE = 192
+
+
+def card_result(card_id: int, card_nickname: str,
+                card_number: str) -> InlineQueryResultArticle:
+    icon = f'{CARD_ICONS_URL}/{card_icon(card_number)}.jpg'
+    result = InlineQueryResultArticle(
+        id=str(card_id),
+        # The title is seen only by the user; the chat gets the number
+        title=card_label(card_nickname, card_number),
+        input_message_content=InputTextMessageContent(
+            message_text=f'💳 <code>{format_card_number(card_number)}</code>',
+            parse_mode='html'
+        ),
+        thumb_url=icon,
+        thumb_width=ICON_SIZE,
+        thumb_height=ICON_SIZE
+    )
+    # aiogram 2 knows only the names Bot API 6.6 renamed; send the new ones
+    # too, so the icon shows whichever Telegram reads
+    result.values.update(thumbnail_url=icon, thumbnail_width=ICON_SIZE,
+                         thumbnail_height=ICON_SIZE)
+
+    return result
 
 
 async def inline_cards_handler(query: InlineQuery) -> None:
@@ -19,16 +45,7 @@ async def inline_cards_handler(query: InlineQuery) -> None:
         cards = exact
 
     results = [
-        InlineQueryResultArticle(
-            id=str(card_id),
-            # The title is seen only by the user; the chat gets the number
-            title=card_label(card_nickname, card_number),
-            input_message_content=InputTextMessageContent(
-                message_text=f'💳 <code>{format_card_number(card_number)}'
-                             f'</code>',
-                parse_mode='html'
-            )
-        )
+        card_result(card_id, card_nickname, card_number)
         for card_id, card_nickname, card_number in cards
         if wanted in card_nickname.casefold()
     ]
