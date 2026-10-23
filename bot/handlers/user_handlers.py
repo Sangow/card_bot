@@ -354,7 +354,7 @@ async def show_card_handler(call: CallbackQuery,
         call,
         text=card_view_text(lang, card_nickname, card_number),
         parse_mode='html',
-        reply_markup=card_ikb(card_id, lang, page)
+        reply_markup=card_ikb(card_id, card_nickname, lang, page)
     )
     schedule_hide(call.bot, call.message.chat.id, call.message.message_id,
                   card_id, card_nickname, page, lang)
@@ -500,7 +500,7 @@ async def rename_card_save_handler(message: Message,
         message, state,
         text=card_view_text(lang, card_nickname, card_number),
         parse_mode='html',
-        reply_markup=card_ikb(card_id, lang, page)
+        reply_markup=card_ikb(card_id, card_nickname, lang, page)
     )
     schedule_hide(message.bot, message.chat.id, shown_id,
                   card_id, card_nickname, page, lang)
