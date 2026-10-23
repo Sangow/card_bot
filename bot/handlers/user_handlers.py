@@ -1,4 +1,5 @@
 from contextlib import suppress
+from math import ceil
 from html import escape
 from sqlite3 import IntegrityError
 
@@ -15,6 +16,8 @@ from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .service import card_label, format_card_number
+
+CARDS_PER_PAGE = 5
 
 
 async def edit_message(call: CallbackQuery, text: str,
@@ -176,25 +179,50 @@ async def add_card_3(message: Message, state: FSMContext) -> None:
     await state.finish()
 
 
-async def cards_list(user_id: int,
-                     lang: str) -> tuple[str, InlineKeyboardMarkup]:
-    cards = [(card_id, card_label(card_nickname, card_number))
-             for card_id, card_nickname, card_number
-             in await get_cards(user_id=user_id)]
+async def cards_list(user_id: int, lang: str,
+                     page: int = 0) -> tuple[str, InlineKeyboardMarkup]:
+    cards = await get_cards(user_id=user_id)
 
     if not cards:
         return t(lang, 'no_cards'), main_ikb(lang)
 
-    return t(lang, 'choose_card'), cards_ikb(cards, lang)
+    pages = ceil(len(cards) / CARDS_PER_PAGE)
+    # The page may be gone if cards were deleted since the list was shown
+    page = min(max(page, 0), pages - 1)
+    start = page * CARDS_PER_PAGE
+
+    labels = [(card_id, card_label(card_nickname, card_number))
+              for card_id, card_nickname, card_number
+              in cards[start:start + CARDS_PER_PAGE]]
+
+    if pages == 1:
+        text = t(lang, 'choose_card')
+    else:
+        text = t(lang, 'choose_card_page', page=page + 1, pages=pages)
+
+    return text, cards_ikb(labels, page, pages, lang)
 
 
-async def show_cards_handler(call: CallbackQuery, state: FSMContext) -> None:
+async def card_page(user_id: int, card_id: int) -> int:
+    card_ids = [cid for cid, _, _ in await get_cards(user_id=user_id)]
+
+    if card_id not in card_ids:
+        return 0
+
+    return card_ids.index(card_id) // CARDS_PER_PAGE
+
+
+async def show_cards_handler(call: CallbackQuery,
+                             callback_data: dict,
+                             state: FSMContext) -> None:
     lang = get_lang(call.from_user)
 
     await state.finish()
 
-    text, reply_markup = await cards_list(user_id=call.from_user.id,
-                                          lang=lang)
+    # The menu button has no page, so it opens the first one
+    text, reply_markup = await cards_list(
+        user_id=call.from_user.id, lang=lang,
+        page=int(callback_data.get('page', 0)))
 
     await edit_message(call, text=text, reply_markup=reply_markup)
     await call.answer()
@@ -215,12 +243,13 @@ async def show_card_handler(call: CallbackQuery,
         return
 
     card_nickname, card_number = card
+    page = await card_page(user_id=call.from_user.id, card_id=card_id)
 
     await edit_message(
         call,
         text=card_view_text(lang, card_nickname, card_number),
         parse_mode='html',
-        reply_markup=card_ikb(card_id, lang)
+        reply_markup=card_ikb(card_id, lang, page)
     )
     await call.answer()
 
@@ -322,10 +351,11 @@ async def rename_card_save_handler(message: Message,
         return
 
     card_nickname, card_number = card
+    page = await card_page(user_id=message.from_user.id, card_id=card_id)
 
     await message.answer(text=card_view_text(lang, card_nickname, card_number),
                          parse_mode='html',
-                         reply_markup=card_ikb(card_id, lang))
+                         reply_markup=card_ikb(card_id, lang, page))
 
 
 async def confirm_delete_card_handler(call: CallbackQuery,
