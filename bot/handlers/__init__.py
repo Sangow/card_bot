@@ -5,6 +5,7 @@ from aiogram.types import ContentTypes
 from bot.keyboards import nav_cb, card_cb, cards_cb
 from bot.states import AddCard, ShowCard
 from .error_handlers import errors_handler
+from .inline import inline_cards_handler
 from .fallback import non_text_in_dialog_handler, \
     card_number_outside_dialog_handler, not_understood_handler, \
     invalid_card_button, invalid_button_handler, \
@@ -126,6 +127,9 @@ async def register_handlers(dp: Dispatcher) -> None:
     dp.register_callback_query_handler(delete_card_handler,
                                        card_cb.filter(action='delete'),
                                        state='*')
+
+    # Sharing a card from any chat; works in the middle of a dialog too
+    dp.register_inline_handler(inline_cards_handler, state='*')
 
     # Fallbacks: registered last, so they only get what nothing above took
     dp.register_message_handler(non_text_in_dialog_handler,
