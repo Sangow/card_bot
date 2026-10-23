@@ -76,6 +76,7 @@ TEXTS = {
         'btn_leave_previous_nickname': '↩️ Leave previous',
         'btn_yes_delete': '✅ Yes, delete',
         'btn_no': '↩️ No',
+        'btn_read': '✅ Read',
     },
     'uk': {
         'welcome': 'Вітаю в card bot!',
@@ -152,6 +153,7 @@ TEXTS = {
         'btn_leave_previous_nickname': '↩️ Залишити попередню',
         'btn_yes_delete': '✅ Так, видалити',
         'btn_no': '↩️ Ні',
+        'btn_read': '✅ Прочитано',
     },
 }
 
