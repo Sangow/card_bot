@@ -1,4 +1,5 @@
 from contextlib import suppress
+from html import escape
 
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, \
@@ -150,7 +151,8 @@ async def show_card_handler(call: CallbackQuery,
 
     await edit_message(
         call,
-        text=t(lang, 'card_view', nickname=card_nickname, number=card_number),
+        text=t(lang, 'card_view',
+               nickname=escape(card_nickname), number=card_number),
         parse_mode='html',
         reply_markup=card_ikb(card_id, lang)
     )
