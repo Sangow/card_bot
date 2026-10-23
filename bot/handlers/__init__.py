@@ -4,6 +4,7 @@ from aiogram.types import ContentTypes
 
 from bot.keyboards import nav_cb, card_cb, cards_cb
 from bot.states import AddCard, ShowCard
+from .admin import is_admin, cmd_stats
 from .error_handlers import errors_handler
 from .inline import inline_cards_handler
 from .fallback import non_text_in_dialog_handler, \
@@ -55,6 +56,11 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 state='*')
     dp.register_message_handler(cmd_help,
                                 Command('help'),
+                                state='*')
+    # Only for the bot owner; anyone else gets the usual "not understood"
+    dp.register_message_handler(cmd_stats,
+                                Command('stats'),
+                                is_admin,
                                 state='*')
     # Buttons of the old reply keyboard
     dp.register_message_handler(cmd_start,
