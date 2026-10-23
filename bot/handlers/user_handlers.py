@@ -216,6 +216,16 @@ async def add_card_3_fail(message: Message, state: FSMContext) -> None:
                       reply_markup=cancel_ikb(lang))
 
 
+async def add_card_3_not_supported(message: Message,
+                                   state: FSMContext) -> None:
+    lang = get_lang(message.from_user)
+
+    await delete_user_message(message)
+
+    await edit_prompt(message, state, text=t(lang, 'card_not_supported'),
+                      reply_markup=cancel_ikb(lang))
+
+
 async def add_card_3(message: Message, state: FSMContext) -> None:
     lang = get_lang(message.from_user)
 
@@ -353,6 +363,20 @@ async def edit_card_number_fail_handler(message: Message,
     await delete_user_message(message)
 
     await edit_prompt(message, state, text=t(lang, 'card_invalid'),
+                      reply_markup=edit_ikb(card_id, lang))
+
+
+async def edit_card_number_not_supported_handler(
+        message: Message,
+        state: FSMContext) -> None:
+    lang = get_lang(message.from_user)
+
+    async with state.proxy() as data:
+        card_id = data['card_id']
+
+    await delete_user_message(message)
+
+    await edit_prompt(message, state, text=t(lang, 'card_not_supported'),
                       reply_markup=edit_ikb(card_id, lang))
 
 
