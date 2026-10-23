@@ -34,6 +34,13 @@ TEXTS = {
         'delete_confirm': 'Delete card "{nickname}"?',
         'card_deleted': 'Card deleted.',
         'error': 'Something went wrong. Please try again.',
+        'alert': '⚠️ Error in the bot\n{error}\nAction: {action}\n'
+                 'Time: {time} UTC\nDetails: fly logs -a card-bot',
+        'alert_repeats': 'Happened {count} more times since the last alert',
+        'startup_alert': '✅ Bot started\nTime: {time} UTC',
+        'alert_action_message': 'message',
+        'alert_action_button': 'button press',
+        'alert_action_other': 'other update',
         'not_understood': 'I did not understand that. Use the buttons:',
         'number_outside_dialog': 'Your message with a card number was '
                                  'deleted. To save a card, tap '
@@ -102,6 +109,14 @@ TEXTS = {
         'delete_confirm': 'Видалити картку «{nickname}»?',
         'card_deleted': 'Картку видалено.',
         'error': 'Щось пішло не так. Спробуйте ще раз.',
+        'alert': '⚠️ Помилка в боті\n{error}\nДія: {action}\n'
+                 'Час: {time} UTC\nПодробиці: fly logs -a card-bot',
+        'alert_repeats': 'Повторилася ще {count} раз(ів) з попереднього '
+                         'сповіщення',
+        'startup_alert': '✅ Бот запущено\nЧас: {time} UTC',
+        'alert_action_message': 'повідомлення',
+        'alert_action_button': 'натискання кнопки',
+        'alert_action_other': 'інше оновлення',
         'not_understood': 'Не зрозумів. Скористайтеся кнопками:',
         'number_outside_dialog': 'Повідомлення з номером картки видалено. '
                                  'Щоб зберегти картку, натисніть '
