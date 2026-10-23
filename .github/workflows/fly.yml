@@ -11,9 +11,6 @@ concurrency:
   group: fly-deploy
   cancel-in-progress: false
 
-env:
-  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
 jobs:
   test:
     uses: ./.github/workflows/tests.yml
@@ -25,7 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Pinned to a commit: this step can use the Fly token
+      # Pinned to a commit, as it runs in the job that deploys
       - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # 1.6
 
+      # Only this step gets the Fly token
       - run: flyctl deploy --remote-only --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
