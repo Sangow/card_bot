@@ -26,6 +26,18 @@ TEXTS = {
         'delete_confirm': 'Delete card "{nickname}"?',
         'card_deleted': 'Card deleted.',
         'error': 'Something went wrong. Please try again.',
+        'help': 'Card bot keeps your card numbers so you can copy them '
+                'quickly.\n\n'
+                '/cards - your cards: tap one to see and copy the number, '
+                'change or delete it\n'
+                '/add - add a card\n'
+                '/cancel - cancel the current action\n'
+                '/help - this help',
+
+        'cmd_cards': 'My cards',
+        'cmd_add': 'Add card',
+        'cmd_cancel': 'Cancel current action',
+        'cmd_help': 'Help',
 
         'btn_show_cards': '💳 Show cards',
         'btn_add_card': '➕ Add card',
@@ -63,6 +75,18 @@ TEXTS = {
         'delete_confirm': 'Видалити картку «{nickname}»?',
         'card_deleted': 'Картку видалено.',
         'error': 'Щось пішло не так. Спробуйте ще раз.',
+        'help': 'Card bot зберігає номери ваших карток, щоб їх можна було '
+                'швидко скопіювати.\n\n'
+                '/cards - ваші картки: натисніть на картку, щоб побачити й '
+                'скопіювати номер, змінити або видалити її\n'
+                '/add - додати картку\n'
+                '/cancel - скасувати поточну дію\n'
+                '/help - ця довідка',
+
+        'cmd_cards': 'Мої картки',
+        'cmd_add': 'Додати картку',
+        'cmd_cancel': 'Скасувати дію',
+        'cmd_help': 'Довідка',
 
         'btn_show_cards': '💳 Мої картки',
         'btn_add_card': '➕ Додати картку',
