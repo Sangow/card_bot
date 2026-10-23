@@ -34,6 +34,12 @@ TEXTS = {
         'delete_confirm': 'Delete card "{nickname}"?',
         'card_deleted': 'Card deleted.',
         'error': 'Something went wrong. Please try again.',
+        'not_understood': 'I did not understand that. Use the buttons:',
+        'number_outside_dialog': 'Your message with a card number was '
+                                 'deleted. To save a card, tap '
+                                 '"➕ Add card".',
+        'send_nickname_as_text': 'Send the nickname as text:',
+        'send_number_as_text': 'Send the card number as text:',
         'private_only': 'I only work in private messages. '
                         'Open a chat with me to manage your cards.',
         'help': 'Card bot keeps your card numbers so you can copy them '
@@ -96,6 +102,12 @@ TEXTS = {
         'delete_confirm': 'Видалити картку «{nickname}»?',
         'card_deleted': 'Картку видалено.',
         'error': 'Щось пішло не так. Спробуйте ще раз.',
+        'not_understood': 'Не зрозумів. Скористайтеся кнопками:',
+        'number_outside_dialog': 'Повідомлення з номером картки видалено. '
+                                 'Щоб зберегти картку, натисніть '
+                                 '«➕ Додати картку».',
+        'send_nickname_as_text': 'Надішліть назву текстом:',
+        'send_number_as_text': 'Надішліть номер картки текстом:',
         'private_only': 'Я працюю лише в особистих повідомленнях. '
                         'Відкрийте чат зі мною, щоб керувати картками.',
         'help': 'Card bot зберігає номери ваших карток, щоб їх можна було '
