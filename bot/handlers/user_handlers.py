@@ -13,6 +13,7 @@ from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
     edit_card_by_id, rename_card_by_id
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
+from .service import card_label, format_card_number
 
 
 async def edit_message(call: CallbackQuery, text: str,
@@ -27,7 +28,8 @@ async def edit_message(call: CallbackQuery, text: str,
 
 def card_view_text(lang: str, card_nickname: str, card_number: str) -> str:
     return t(lang, 'card_view',
-             nickname=escape(card_nickname), number=card_number)
+             nickname=escape(card_nickname),
+             number=format_card_number(card_number))
 
 
 async def cmd_start(message: Message, state: FSMContext) -> None:
@@ -53,6 +55,35 @@ async def cmd_cancel(message: Message, state: FSMContext) -> None:
                          reply_markup=ReplyKeyboardRemove())
     await message.answer(text=t(lang, 'choose_action'),
                          reply_markup=main_ikb(lang))
+
+
+async def cmd_cards(message: Message, state: FSMContext) -> None:
+    lang = get_lang(message.from_user)
+
+    if await state.get_state():
+        await state.finish()
+
+    text, reply_markup = await cards_list(user_id=message.from_user.id,
+                                          lang=lang)
+
+    await message.answer(text=text, reply_markup=reply_markup)
+
+
+async def cmd_add(message: Message, state: FSMContext) -> None:
+    lang = get_lang(message.from_user)
+
+    if await state.get_state():
+        await state.finish()
+
+    await message.answer(text=t(lang, 'enter_card_number'),
+                         reply_markup=cancel_ikb(lang))
+    await AddCard.card_number.set()
+
+
+async def cmd_help(message: Message) -> None:
+    lang = get_lang(message.from_user)
+
+    await message.answer(text=t(lang, 'help'), reply_markup=main_ikb(lang))
 
 
 async def main_menu_handler(call: CallbackQuery, state: FSMContext) -> None:
@@ -122,20 +153,27 @@ async def add_card_3(message: Message, state: FSMContext) -> None:
     await state.finish()
 
 
+async def cards_list(user_id: int,
+                     lang: str) -> tuple[str, InlineKeyboardMarkup]:
+    cards = [(card_id, card_label(card_nickname, card_number))
+             for card_id, card_nickname, card_number
+             in await get_cards(user_id=user_id)]
+
+    if not cards:
+        return t(lang, 'no_cards'), main_ikb(lang)
+
+    return t(lang, 'choose_card'), cards_ikb(cards, lang)
+
+
 async def show_cards_handler(call: CallbackQuery, state: FSMContext) -> None:
     lang = get_lang(call.from_user)
 
     await state.finish()
 
-    cards = await get_cards(user_id=call.from_user.id)
+    text, reply_markup = await cards_list(user_id=call.from_user.id,
+                                          lang=lang)
 
-    if not cards:
-        await edit_message(call, text=t(lang, 'no_cards'),
-                           reply_markup=main_ikb(lang))
-    else:
-        await edit_message(call, text=t(lang, 'choose_card'),
-                           reply_markup=cards_ikb(cards, lang))
-
+    await edit_message(call, text=text, reply_markup=reply_markup)
     await call.answer()
 
 

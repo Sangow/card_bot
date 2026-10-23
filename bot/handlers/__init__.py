@@ -1,11 +1,12 @@
 from aiogram.dispatcher import Dispatcher
-from aiogram.dispatcher.filters import CommandStart, Text
+from aiogram.dispatcher.filters import Command, CommandStart, Text
 
 from bot.keyboards import nav_cb, card_cb
 from bot.states import AddCard, ShowCard
 from .error_handlers import errors_handler
 from .service import validate_card_number, validate_card_nickname
-from .user_handlers import cmd_start, cmd_cancel, main_menu_handler, \
+from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
+    cmd_help, main_menu_handler, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, \
     show_cards_handler, show_card_handler, edit_card_handler, \
     edit_card_number_fail_handler, edit_card_number_handler, \
@@ -19,6 +20,19 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 state='*')
     dp.register_message_handler(cmd_cancel,
                                 Text(equals='cancel', ignore_case=True),
+                                state='*')
+    # Commands go before state handlers so they work in the middle of input
+    dp.register_message_handler(cmd_cancel,
+                                Command('cancel'),
+                                state='*')
+    dp.register_message_handler(cmd_cards,
+                                Command('cards'),
+                                state='*')
+    dp.register_message_handler(cmd_add,
+                                Command('add'),
+                                state='*')
+    dp.register_message_handler(cmd_help,
+                                Command('help'),
                                 state='*')
     # Buttons of the old reply keyboard
     dp.register_message_handler(cmd_start,
