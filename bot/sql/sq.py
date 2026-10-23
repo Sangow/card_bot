@@ -1,7 +1,7 @@
 import logging
 from sqlite3 import connect
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 from bot.config import CARD_KEY, DB_PATH
 
@@ -81,6 +81,21 @@ def migrate() -> None:
         db.isolation_level = ''
 
 
+def check_key() -> None:
+    row = cur.execute('SELECT card_number FROM cards LIMIT 1').fetchone()
+
+    if row is None:
+        return
+
+    # With a wrong key new cards would be encrypted differently from the
+    # existing ones, so refuse to start instead
+    try:
+        decrypt(row[0])
+    except InvalidToken:
+        raise SystemExit('CARD_KEY does not match the key the cards in the '
+                         'database were encrypted with')
+
+
 async def start_db() -> None:
     global db, cur, cipher
 
@@ -93,6 +108,7 @@ async def start_db() -> None:
     cur = db.cursor()
 
     migrate()
+    check_key()
 
 
 async def add_card(user_id: str, card_number: str, card_nickname: str) -> None:
