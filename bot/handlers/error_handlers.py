@@ -1,12 +1,13 @@
 import logging
 from contextlib import suppress
-from datetime import datetime, timezone
+from datetime import datetime
 from time import monotonic
+from zoneinfo import ZoneInfo
 
 from aiogram import Bot
 from aiogram.types import Update
 
-from bot.config import ADMIN_CHAT_ID, STARTUP_ALERT
+from bot.config import ADMIN_CHAT_ID, STARTUP_ALERT, ALERT_TIMEZONE
 from bot.texts import t, get_lang
 
 logger = logging.getLogger(__name__)
@@ -20,8 +21,8 @@ ALERT_LANG = 'uk'
 alerts = {}
 
 
-def now_utc() -> str:
-    return datetime.now(timezone.utc).strftime('%d.%m %H:%M')
+def local_time() -> str:
+    return datetime.now(ZoneInfo(ALERT_TIMEZONE)).strftime('%d.%m %H:%M')
 
 
 def describe(exception: Exception) -> str:
@@ -53,7 +54,7 @@ async def notify_admin(update: Update, exception: Exception) -> None:
     alerts[error] = (now, 0)
 
     text = t(ALERT_LANG, 'alert', error=error, action=action_of(update),
-             time=now_utc())
+             time=local_time())
     if repeats:
         text += '\n' + t(ALERT_LANG, 'alert_repeats', count=repeats)
 
@@ -72,7 +73,7 @@ async def notify_startup(bot: Bot) -> None:
     try:
         await bot.send_message(chat_id=ADMIN_CHAT_ID,
                                text=t(ALERT_LANG, 'startup_alert',
-                                      time=now_utc()))
+                                      time=local_time()))
     except Exception:
         logger.exception('Failed to send startup alert')
 
