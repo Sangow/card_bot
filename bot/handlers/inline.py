@@ -11,7 +11,7 @@ ICON_SIZE = 192
 
 def card_result(card_id: int, card_nickname: str,
                 card_number: str) -> InlineQueryResultArticle:
-    icon = f'{CARD_ICONS_URL}/{card_icon(card_number)}.jpg'
+    icon = f'{CARD_ICONS_URL}/{card_icon(card_number)}.png'
     result = InlineQueryResultArticle(
         id=str(card_id),
         # The title is seen only by the user; the chat gets the number
