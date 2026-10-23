@@ -1,8 +1,15 @@
+import logging
+
 from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot import prepare_all
-from bot.config import API_TOKEN
+from bot.config import API_TOKEN, LOG_LEVEL
+
+logging.basicConfig(
+    level=LOG_LEVEL,
+    format='%(asctime)s %(levelname)s %(name)s: %(message)s'
+)
 
 if not API_TOKEN:
     raise SystemExit('API_TOKEN environment variable is not set')
