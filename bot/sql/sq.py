@@ -31,7 +31,8 @@ async def get_cards(user_id: str) -> list:
     return cur.execute(
         'SELECT rowid, card_nickname, card_number '
         'FROM cards '
-        'WHERE user_id=(?)',
+        'WHERE user_id=(?) '
+        'ORDER BY rowid',
         (user_id,)
     ).fetchall()
 
