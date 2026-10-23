@@ -486,3 +486,11 @@ def test_other_users_may_use_the_same_nickname_in_any_case(harness):
 
     assert ('2', '5555555555554444', 'MONO') in harness.rows()
 
+
+@pytest.mark.parametrize('command', ['/start', '/cards', '/add', '/help',
+                                     '/cancel'])
+def test_commands_are_deleted(chat, command):
+    replies = chat.send(command)
+
+    assert replies[0].method == 'deleteMessage'
+    assert replies[0].data['message_id'] == chat.last_message_id
