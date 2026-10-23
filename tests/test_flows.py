@@ -11,20 +11,21 @@ def test_start_shows_menu_and_removes_old_keyboard(chat):
 
 def test_add_card(chat, harness):
     chat.press('nav:add')
-    assert chat.state() == 'AddCard:card_number'
-
-    chat.send('4242 4242 4242 4242')
     assert chat.state() == 'AddCard:card_nickname'
 
-    replies = chat.send('mono')
+    chat.send('mono')
+    assert chat.state() == 'AddCard:card_number'
 
-    assert replies[0].text == 'Card added.'
+    replies = chat.send('4242 4242 4242 4242')
+
+    assert replies[-1].text == 'Card added.'
     assert chat.state() is None
     assert harness.rows() == [('42', '4242424242424242', 'mono')]
 
 
 def test_add_card_rejects_invalid_number(chat, harness):
     chat.send('/add')
+    chat.send('mono')
     replies = chat.send('1234')
 
     assert replies[-1].text == 'Credit card is invalid.'
@@ -35,11 +36,26 @@ def test_add_card_rejects_invalid_number(chat, harness):
 def test_add_card_rejects_duplicate_nickname(chat, harness):
     add_card(chat, '4242424242424242', 'mono')
 
-    replies = add_card(chat, '5555555555554444', 'mono')
+    chat.send('/add')
+    replies = chat.send('mono')
 
-    assert replies[0].text.startswith('Nickname of your card should be unique')
+    # Rejected right away, before the number is asked for
+    assert replies[-1].text.startswith('Nickname of your card should be unique')
     assert chat.state() == 'AddCard:card_nickname'
     assert len(harness.rows()) == 1
+
+
+def test_nickname_taken_while_entering_number(chat, harness):
+    chat.send('/add')
+    chat.send('mono')
+    harness.loop.run_until_complete(user_handlers.add_card(
+        user_id=42, card_number='5555555555554444', card_nickname='mono'))
+
+    replies = chat.send('4242424242424242')
+
+    assert replies[-1].text.startswith('Nickname of your card should be unique')
+    assert chat.state() == 'AddCard:card_nickname'
+    assert harness.rows() == [('42', '5555555555554444', 'mono')]
 
 
 def test_cancel_button_stops_adding(chat):
@@ -128,12 +144,12 @@ def test_rename_card(chat, harness):
     add_card(chat, '5555555555554444', 'privat')
 
     chat.press('card:rename:1')
-    assert chat.send('two words')[0].text.startswith('Choose another nickname')
-    assert chat.send('privat')[0].text.startswith('Nickname of your card')
+    assert chat.send('two words')[-1].text.startswith('Choose another')
+    assert chat.send('privat')[-1].text.startswith('Nickname of your card')
 
     replies = chat.send('black')
 
-    assert 'black' in replies[0].text
+    assert 'black' in replies[-1].text
     assert chat.state() is None
     assert ('42', '4242424242424242', 'black') in harness.rows()
 
@@ -166,14 +182,14 @@ def test_cards_limit_is_checked_before_saving(chat, harness, monkeypatch):
     monkeypatch.setattr(user_handlers, 'MAX_CARDS', 1)
 
     chat.send('/add')
-    chat.send('4242424242424242')
+    chat.send('mono')
     # Another card gets saved while this one is still being added
     harness.loop.run_until_complete(user_handlers.add_card(
         user_id=42, card_number='5555555555554444', card_nickname='other'))
 
-    replies = chat.send('mono')
+    replies = chat.send('4242424242424242')
 
-    assert replies[0].text.startswith('You can keep up to 1 cards')
+    assert replies[-1].text.startswith('You can keep up to 1 cards')
     assert len(harness.rows()) == 1
 
 
@@ -192,7 +208,7 @@ def test_help_keeps_current_input(chat):
     replies = chat.send('/help')
 
     assert '/cards' in replies[0].text
-    assert chat.state() == 'AddCard:card_number'
+    assert chat.state() == 'AddCard:card_nickname'
 
 
 def test_old_reply_keyboard_buttons_open_menu(chat):
@@ -315,3 +331,23 @@ def test_ukrainian_page_buttons(harness):
 
     assert reply.text == 'Оберіть картку (1/2):'
     assert reply.buttons[-2] == [('Далі ➡️', 'cards:1')]
+
+
+def state_data(chat) -> dict:
+    return chat.harness.loop.run_until_complete(
+        chat.harness.dp.current_state(chat=chat.user['id'],
+                                      user=chat.user['id']).get_data())
+
+
+def test_card_number_is_never_kept_in_state(chat):
+    chat.send('/add')
+    chat.send('mono')
+    chat.send('4242 4242 4242 4241')     # invalid, asked again
+    assert '4242' not in str(state_data(chat))
+
+    chat.send('4242 4242 4242 4242')
+    assert state_data(chat) == {}
+
+    chat.press('card:edit:1')
+    chat.send('1111')                    # invalid, asked again
+    assert set(state_data(chat)) == {'card_id', 'prompt_id'}

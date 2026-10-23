@@ -1,4 +1,5 @@
 import logging
+from contextlib import contextmanager
 from sqlite3 import connect
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -8,7 +9,8 @@ from bot.config import CARD_KEY, DB_PATH
 logger = logging.getLogger(__name__)
 
 # 1: cards have their own id and encrypted card numbers
-SCHEMA_VERSION = 1
+# 2: conversation states are kept in the database
+SCHEMA_VERSION = 2
 
 # AUTOINCREMENT never reuses the id of a deleted card, so buttons left in
 # old messages cannot open a card added later
@@ -21,6 +23,17 @@ CREATE_CARDS = (
     'CONSTRAINT user_id_card_nick UNIQUE (user_id, card_nickname))'
 )
 
+# Data is stored encrypted, as it holds what the user is in the middle of
+# entering
+CREATE_FSM = (
+    'CREATE TABLE fsm '
+    '(chat TEXT NOT NULL, '
+    'user TEXT NOT NULL, '
+    'state TEXT, '
+    'data TEXT, '
+    'PRIMARY KEY (chat, user))'
+)
+
 
 def encrypt(card_number: str) -> str:
     return cipher.encrypt(card_number.encode()).decode()
@@ -30,22 +43,28 @@ def decrypt(token: str) -> str:
     return cipher.decrypt(token.encode()).decode()
 
 
-def migrate() -> None:
-    version = cur.execute('PRAGMA user_version').fetchone()[0]
+@contextmanager
+def transaction():
+    """One explicit transaction, so a failed migration leaves the database
+    as it was."""
+    db.isolation_level = None
+    try:
+        cur.execute('BEGIN')
+        yield
+        cur.execute('COMMIT')
+    except BaseException:
+        cur.execute('ROLLBACK')
+        raise
+    finally:
+        db.isolation_level = ''
 
-    if version >= SCHEMA_VERSION:
-        return
 
+def migrate_to_1() -> None:
     has_cards = cur.execute(
         "SELECT 1 FROM sqlite_master WHERE type='table' AND name='cards'"
     ).fetchone()
 
-    # One explicit transaction, so a failed migration leaves the old table
-    # as it was
-    db.isolation_level = None
-    try:
-        cur.execute('BEGIN')
-
+    with transaction():
         if has_cards:
             rows = cur.execute(
                 'SELECT rowid, user_id, card_number, card_nickname '
@@ -67,23 +86,31 @@ def migrate() -> None:
             cur.execute('DROP TABLE cards')
             cur.execute('ALTER TABLE cards_new RENAME TO cards')
 
-            logger.info('Migrated %d cards to schema version %d',
-                        len(rows), SCHEMA_VERSION)
+            logger.info('Migrated %d cards to schema version 1', len(rows))
         else:
             cur.execute(CREATE_CARDS.format(table='cards'))
 
-        cur.execute(f'PRAGMA user_version = {SCHEMA_VERSION}')
-        cur.execute('COMMIT')
-    except BaseException:
-        cur.execute('ROLLBACK')
-        raise
-    finally:
-        db.isolation_level = ''
+        cur.execute('PRAGMA user_version = 1')
 
     if has_cards:
         # Pages of the dropped table still hold the plain card numbers until
         # they are overwritten, so rebuild the file without them
         cur.execute('VACUUM')
+
+
+def migrate_to_2() -> None:
+    with transaction():
+        cur.execute(CREATE_FSM)
+        cur.execute('PRAGMA user_version = 2')
+
+
+def migrate() -> None:
+    version = cur.execute('PRAGMA user_version').fetchone()[0]
+
+    if version < 1:
+        migrate_to_1()
+    if version < 2:
+        migrate_to_2()
 
 
 def check_key() -> None:
@@ -196,3 +223,12 @@ async def count_cards(user_id: str) -> int:
         'WHERE user_id=(?)',
         (user_id,)
     ).fetchone()[0]
+
+
+async def nickname_taken(user_id: str, card_nickname: str) -> bool:
+    return cur.execute(
+        'SELECT 1 '
+        'FROM cards '
+        'WHERE user_id=(?) AND card_nickname=(?)',
+        (user_id, card_nickname)
+    ).fetchone() is not None

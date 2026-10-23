@@ -93,8 +93,11 @@ def test_stopping_the_bot_hides_everything(harness):
     assert edits(harness.wait(HIDE_AFTER * 2)) == []
 
 
-def test_entered_numbers_are_deleted(chat):
+def test_entered_numbers_and_nicknames_are_deleted(chat):
     chat.send('/add')
+
+    nickname = chat.send('mono')
+    assert nickname[0].method == 'deleteMessage'
 
     invalid = chat.send('1234 5678')
     assert invalid[0].method == 'deleteMessage'
@@ -103,9 +106,6 @@ def test_entered_numbers_are_deleted(chat):
     valid = chat.send('4242 4242 4242 4242')
     assert valid[0].method == 'deleteMessage'
     assert valid[0].data['message_id'] == chat.last_message_id
-
-    nickname = chat.send('mono')
-    assert 'deleteMessage' not in [r.method for r in nickname]
 
 
 def test_changed_numbers_are_deleted(chat):

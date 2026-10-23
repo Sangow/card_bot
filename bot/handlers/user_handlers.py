@@ -12,7 +12,7 @@ from bot.keyboards import main_ikb, cancel_ikb, cards_ikb, card_ikb, edit_ikb, \
     rename_ikb, delete_confirm_ikb
 from bot.config import MAX_CARDS
 from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
-    edit_card_by_id, rename_card_by_id, count_cards
+    edit_card_by_id, rename_card_by_id, count_cards, nickname_taken
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .hiding import schedule_hide, cancel_hide
@@ -35,11 +35,46 @@ async def edit_message(call: CallbackQuery, text: str,
                                      reply_markup=reply_markup)
 
 
-async def delete_card_number_message(message: Message) -> None:
-    # The number should not stay in the chat history. Deleting may fail if
+async def delete_user_message(message: Message) -> None:
+    # Inputs are deleted so that card numbers do not stay in the chat
+    # history and the flow lives in one bot message. Deleting may fail if
     # the user already deleted the message
     with suppress(TelegramAPIError):
         await message.delete()
+
+
+async def remember_prompt(state: FSMContext, message_id: int) -> None:
+    async with state.proxy() as data:
+        data['prompt_id'] = message_id
+
+
+async def edit_prompt(message: Message, state: FSMContext, text: str,
+                      reply_markup: InlineKeyboardMarkup,
+                      parse_mode: str = None) -> int:
+    """Shows the next step of a text input flow in the message that asked
+    for the input, and returns that message's id."""
+    async with state.proxy() as data:
+        prompt_id = data.get('prompt_id')
+
+    if prompt_id:
+        try:
+            await message.bot.edit_message_text(text=text,
+                                                chat_id=message.chat.id,
+                                                message_id=prompt_id,
+                                                parse_mode=parse_mode,
+                                                reply_markup=reply_markup)
+            return prompt_id
+        except MessageNotModified:
+            return prompt_id
+        except TelegramAPIError:
+            # The prompt was deleted or can no longer be edited
+            pass
+
+    shown = await message.answer(text=text, parse_mode=parse_mode,
+                                 reply_markup=reply_markup)
+    await remember_prompt(state, shown.message_id)
+
+    return shown.message_id
 
 
 def card_view_text(lang: str, card_nickname: str, card_number: str) -> str:
@@ -100,9 +135,10 @@ async def cmd_add(message: Message, state: FSMContext) -> None:
                              reply_markup=main_ikb(lang))
         return
 
-    await message.answer(text=t(lang, 'enter_card_number'),
-                         reply_markup=cancel_ikb(lang))
-    await AddCard.card_number.set()
+    prompt = await message.answer(text=t(lang, 'enter_nickname'),
+                                  reply_markup=cancel_ikb(lang))
+    await AddCard.card_nickname.set()
+    await remember_prompt(state, prompt.message_id)
 
 
 async def cmd_help(message: Message) -> None:
@@ -132,68 +168,85 @@ async def add_card_1(call: CallbackQuery, state: FSMContext) -> None:
         await call.answer()
         return
 
-    await edit_message(call, text=t(lang, 'enter_card_number'),
+    await edit_message(call, text=t(lang, 'enter_nickname'),
                        reply_markup=cancel_ikb(lang))
-    await AddCard.card_number.set()
+    await AddCard.card_nickname.set()
+    await remember_prompt(state, call.message.message_id)
     await call.answer()
 
 
-async def add_card_2_fail(message: Message) -> None:
+
+async def add_card_2_fail(message: Message, state: FSMContext) -> None:
     lang = get_lang(message.from_user)
 
-    await delete_card_number_message(message)
+    await delete_user_message(message)
 
-    await message.answer(text=t(lang, 'card_invalid'),
-                         reply_markup=cancel_ikb(lang))
+    await edit_prompt(message, state,
+                      text=t(lang, 'choose_another_nickname'),
+                      reply_markup=cancel_ikb(lang))
 
 
 async def add_card_2(message: Message, state: FSMContext) -> None:
     lang = get_lang(message.from_user)
 
+    await delete_user_message(message)
+
+    if await nickname_taken(user_id=message.from_user.id,
+                            card_nickname=message.text):
+        await edit_prompt(message, state,
+                          text=t(lang, 'nickname_not_unique'),
+                          reply_markup=cancel_ikb(lang))
+        return
+
     async with state.proxy() as data:
-        data['card_number'] = message.text.replace(' ', '')
+        data['card_nickname'] = message.text
 
-    await delete_card_number_message(message)
+    await edit_prompt(message, state, text=t(lang, 'enter_card_number'),
+                      reply_markup=cancel_ikb(lang))
 
-    await message.answer(text=t(lang, 'enter_nickname'),
-                         reply_markup=cancel_ikb(lang))
-
-    await AddCard.next()
+    await AddCard.card_number.set()
 
 
-async def add_card_3_fail(message: Message) -> None:
+async def add_card_3_fail(message: Message, state: FSMContext) -> None:
     lang = get_lang(message.from_user)
 
-    await message.answer(text=t(lang, 'choose_another_nickname'),
-                         reply_markup=cancel_ikb(lang))
+    await delete_user_message(message)
+
+    await edit_prompt(message, state, text=t(lang, 'card_invalid'),
+                      reply_markup=cancel_ikb(lang))
 
 
 async def add_card_3(message: Message, state: FSMContext) -> None:
     lang = get_lang(message.from_user)
 
+    await delete_user_message(message)
+
     # Checked again in case several cards were being added at once
     if await cards_limit_reached(user_id=message.from_user.id):
+        await edit_prompt(message, state,
+                          text=t(lang, 'cards_limit', limit=MAX_CARDS),
+                          reply_markup=main_ikb(lang))
         await state.finish()
-        await message.answer(text=t(lang, 'cards_limit', limit=MAX_CARDS),
-                             reply_markup=main_ikb(lang))
         return
 
     async with state.proxy() as data:
-        try:
-            await add_card(user_id=message.from_user.id,
-                           card_number=data['card_number'],
-                           card_nickname=message.text)
-        except IntegrityError:
-            await message.answer(
-                text=t(lang, 'nickname_not_unique'),
-                reply_markup=cancel_ikb(lang)
-            )
-            return
+        card_nickname = data['card_nickname']
 
-    await message.answer(text=t(lang, 'card_added'),
-                         reply_markup=main_ikb(lang))
+    try:
+        await add_card(user_id=message.from_user.id,
+                       card_number=message.text.replace(' ', ''),
+                       card_nickname=card_nickname)
+    except IntegrityError:
+        # Another card got this nickname while the number was being entered
+        await edit_prompt(message, state,
+                          text=t(lang, 'nickname_not_unique'),
+                          reply_markup=cancel_ikb(lang))
+        await AddCard.card_nickname.set()
+        return
+
+    await edit_prompt(message, state, text=t(lang, 'card_added'),
+                      reply_markup=main_ikb(lang))
     await state.finish()
-
 
 async def cards_list(user_id: int, lang: str,
                      page: int = 0) -> tuple[str, InlineKeyboardMarkup]:
@@ -285,6 +338,7 @@ async def edit_card_handler(call: CallbackQuery,
     await ShowCard.edit_card_number.set()
     async with state.proxy() as data:
         data['card_id'] = card_id
+        data['prompt_id'] = call.message.message_id
 
     await call.answer()
 
@@ -296,10 +350,10 @@ async def edit_card_number_fail_handler(message: Message,
     async with state.proxy() as data:
         card_id = data['card_id']
 
-    await delete_card_number_message(message)
+    await delete_user_message(message)
 
-    await message.answer(text=t(lang, 'card_invalid'),
-                         reply_markup=edit_ikb(card_id, lang))
+    await edit_prompt(message, state, text=t(lang, 'card_invalid'),
+                      reply_markup=edit_ikb(card_id, lang))
 
 
 async def edit_card_number_handler(
@@ -308,14 +362,16 @@ async def edit_card_number_handler(
     lang = get_lang(message.from_user)
 
     async with state.proxy() as data:
-        await edit_card_by_id(user_id=message.from_user.id,
-                              card_id=data['card_id'],
-                              new_card_number=message.text.replace(' ', ''))
+        card_id = data['card_id']
 
-    await delete_card_number_message(message)
+    await edit_card_by_id(user_id=message.from_user.id,
+                          card_id=card_id,
+                          new_card_number=message.text.replace(' ', ''))
 
-    await message.answer(text=t(lang, 'info_saved'),
-                         reply_markup=main_ikb(lang))
+    await delete_user_message(message)
+
+    await edit_prompt(message, state, text=t(lang, 'info_saved'),
+                      reply_markup=main_ikb(lang))
     await state.finish()
 
 
@@ -332,6 +388,7 @@ async def rename_card_handler(call: CallbackQuery,
     await ShowCard.edit_card_nickname.set()
     async with state.proxy() as data:
         data['card_id'] = card_id
+        data['prompt_id'] = call.message.message_id
 
     await call.answer()
 
@@ -343,8 +400,11 @@ async def rename_card_fail_handler(message: Message,
     async with state.proxy() as data:
         card_id = data['card_id']
 
-    await message.answer(text=t(lang, 'choose_another_nickname'),
-                         reply_markup=rename_ikb(card_id, lang))
+    await delete_user_message(message)
+
+    await edit_prompt(message, state,
+                      text=t(lang, 'choose_another_nickname'),
+                      reply_markup=rename_ikb(card_id, lang))
 
 
 async def rename_card_save_handler(message: Message,
@@ -354,34 +414,38 @@ async def rename_card_save_handler(message: Message,
     async with state.proxy() as data:
         card_id = data['card_id']
 
+    await delete_user_message(message)
+
     try:
         await rename_card_by_id(user_id=message.from_user.id,
                                 card_id=card_id,
                                 new_card_nickname=message.text)
     except IntegrityError:
-        await message.answer(text=t(lang, 'nickname_not_unique'),
-                             reply_markup=rename_ikb(card_id, lang))
+        await edit_prompt(message, state,
+                          text=t(lang, 'nickname_not_unique'),
+                          reply_markup=rename_ikb(card_id, lang))
         return
-
-    await state.finish()
 
     card = await get_card(user_id=message.from_user.id, card_id=card_id)
 
     if card is None:
-        await message.answer(text=t(lang, 'card_not_found'),
-                             reply_markup=main_ikb(lang))
+        await edit_prompt(message, state, text=t(lang, 'card_not_found'),
+                          reply_markup=main_ikb(lang))
+        await state.finish()
         return
 
     card_nickname, card_number = card
     page = await card_page(user_id=message.from_user.id, card_id=card_id)
 
-    shown = await message.answer(
+    shown_id = await edit_prompt(
+        message, state,
         text=card_view_text(lang, card_nickname, card_number),
         parse_mode='html',
         reply_markup=card_ikb(card_id, lang, page)
     )
-    schedule_hide(message.bot, shown.chat.id, shown.message_id,
+    schedule_hide(message.bot, message.chat.id, shown_id,
                   card_id, card_nickname, page, lang)
+    await state.finish()
 
 
 async def confirm_delete_card_handler(call: CallbackQuery,
