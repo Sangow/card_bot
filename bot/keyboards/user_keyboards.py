@@ -39,19 +39,28 @@ def cards_ikb(cards: list, lang: str) -> InlineKeyboardMarkup:
 def card_ikb(card_id: int, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(row_width=2).add(
         InlineKeyboardButton(
-            text=t(lang, 'btn_edit'),
+            text=t(lang, 'btn_edit_number'),
             callback_data=card_cb.new(action='edit', card_id=card_id)),
         InlineKeyboardButton(
-            text=t(lang, 'btn_delete'),
-            callback_data=card_cb.new(action='confirm_delete',
-                                      card_id=card_id))
-    ).add(InlineKeyboardButton(text=t(lang, 'btn_back'),
-                               callback_data=nav_cb.new(to='cards')))
+            text=t(lang, 'btn_edit_nickname'),
+            callback_data=card_cb.new(action='rename', card_id=card_id))
+    ).add(InlineKeyboardButton(
+        text=t(lang, 'btn_delete'),
+        callback_data=card_cb.new(action='confirm_delete', card_id=card_id)
+    )).add(InlineKeyboardButton(text=t(lang, 'btn_back'),
+                                callback_data=nav_cb.new(to='cards')))
 
 
 def edit_ikb(card_id: int, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup().add(InlineKeyboardButton(
         text=t(lang, 'btn_leave_previous'),
+        callback_data=card_cb.new(action='show', card_id=card_id)
+    ))
+
+
+def rename_ikb(card_id: int, lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup().add(InlineKeyboardButton(
+        text=t(lang, 'btn_leave_previous_nickname'),
         callback_data=card_cb.new(action='show', card_id=card_id)
     ))
 
