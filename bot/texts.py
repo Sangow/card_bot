@@ -24,6 +24,7 @@ TEXTS = {
         'info_saved': 'Information saved.',
         'delete_confirm': 'Delete card "{nickname}"?',
         'card_deleted': 'Card deleted.',
+        'error': 'Something went wrong. Please try again.',
 
         'btn_show_cards': '💳 Show cards',
         'btn_add_card': '➕ Add card',
@@ -57,6 +58,7 @@ TEXTS = {
         'info_saved': 'Збережено.',
         'delete_confirm': 'Видалити картку «{nickname}»?',
         'card_deleted': 'Картку видалено.',
+        'error': 'Щось пішло не так. Спробуйте ще раз.',
 
         'btn_show_cards': '💳 Мої картки',
         'btn_add_card': '➕ Додати картку',

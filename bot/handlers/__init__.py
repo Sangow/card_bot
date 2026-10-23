@@ -3,6 +3,7 @@ from aiogram.dispatcher.filters import CommandStart, Text
 
 from bot.keyboards import nav_cb, card_cb
 from bot.states import AddCard, ShowCard
+from .error_handlers import errors_handler
 from .service import validate_card_number, validate_card_nickname
 from .user_handlers import cmd_start, cmd_cancel, main_menu_handler, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, \
@@ -67,3 +68,5 @@ async def register_handlers(dp: Dispatcher) -> None:
     dp.register_callback_query_handler(delete_card_handler,
                                        card_cb.filter(action='delete'),
                                        state='*')
+
+    dp.register_errors_handler(errors_handler)
