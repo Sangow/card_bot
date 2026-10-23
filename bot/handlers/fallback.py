@@ -1,5 +1,7 @@
+import re
+
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message
+from aiogram.types import CallbackQuery, Message
 
 from bot.keyboards import main_ikb, cancel_ikb, edit_ikb, rename_ikb
 from bot.states import AddCard, ShowCard
@@ -50,3 +52,23 @@ async def not_understood_handler(message: Message) -> None:
 
     await message.answer(text=t(lang, 'not_understood'),
                          reply_markup=main_ikb(lang))
+
+
+# What real card buttons look like. Ids are capped in length, as SQLite
+# rejects integers past 64 bits
+VALID_CARD_BUTTON = re.compile(
+    r'card:(show|edit|rename|confirm_delete|delete):\d{1,18}|cards:\d{1,9}'
+)
+
+
+def invalid_card_button(call: CallbackQuery) -> bool:
+    data = call.data or ''
+
+    return data.startswith(('card:', 'cards:')) and \
+        not VALID_CARD_BUTTON.fullmatch(data)
+
+
+async def invalid_button_handler(call: CallbackQuery) -> None:
+    # Only a modified client sends these. Ignoring them keeps such buttons
+    # from turning into errors and alerts
+    await call.answer()
