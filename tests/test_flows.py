@@ -222,3 +222,96 @@ def test_errors_are_reported_to_user(chat, monkeypatch):
 
     assert replies[-1].method == 'answerCallbackQuery'
     assert replies[-1].text == 'Something went wrong. Please try again.'
+
+
+def luhn_number(n: int) -> str:
+    """A valid 16-digit Visa number that differs for each n."""
+    digits = f'400000{n:09d}'
+    total = 0
+    for i, d in enumerate(reversed(digits)):
+        d = int(d)
+        if i % 2 == 0:
+            d = d * 2 - 9 if d > 4 else d * 2
+        total += d
+
+    return digits + str((10 - total % 10) % 10)
+
+
+def add_cards(chat, count: int) -> None:
+    for n in range(1, count + 1):
+        add_card(chat, luhn_number(n), f'card{n}')
+
+
+def card_buttons(reply) -> list:
+    return [data for data in reply.callbacks if data.startswith('card:')]
+
+
+def test_five_cards_fit_on_one_page(chat):
+    add_cards(chat, 5)
+
+    reply = chat.press('nav:cards')[0]
+
+    assert reply.text == 'Choose your card:'
+    assert len(card_buttons(reply)) == 5
+    assert not any(data.startswith('cards:') for data in reply.callbacks)
+
+
+def test_cards_are_split_into_pages(chat):
+    add_cards(chat, 12)
+
+    first = chat.press('nav:cards')[0]
+    assert first.text == 'Choose your card (1/3):'
+    assert card_buttons(first) == [f'card:show:{n}' for n in range(1, 6)]
+    assert first.buttons[-2] == [('Next ➡️', 'cards:1')]
+
+    middle = chat.press('cards:1')[0]
+    assert middle.text == 'Choose your card (2/3):'
+    assert card_buttons(middle) == [f'card:show:{n}' for n in range(6, 11)]
+    assert middle.buttons[-2] == [('⬅️ Previous', 'cards:0'),
+                                  ('Next ➡️', 'cards:2')]
+
+    last = chat.press('cards:2')[0]
+    assert last.text == 'Choose your card (3/3):'
+    assert card_buttons(last) == ['card:show:11', 'card:show:12']
+    assert last.buttons[-2] == [('⬅️ Previous', 'cards:1')]
+    assert last.buttons[-1] == [('⬅️ Back', 'nav:main')]
+
+
+def test_back_from_card_returns_to_its_page(chat):
+    add_cards(chat, 12)
+
+    reply = chat.press('card:show:7')[0]
+
+    assert ('⬅️ Back', 'cards:1') in reply.buttons[-1]
+
+
+def test_page_out_of_range_shows_last_page(chat):
+    add_cards(chat, 6)
+    chat.press('card:delete:6')
+
+    reply = chat.press('cards:1')[0]
+
+    assert reply.text == 'Choose your card:'
+    assert card_buttons(reply) == [f'card:show:{n}' for n in range(1, 6)]
+
+
+def test_pages_show_only_own_cards(harness):
+    owner = harness.chat(user_id=1)
+    other = harness.chat(user_id=2)
+    add_cards(owner, 6)
+    add_card(other, luhn_number(99), 'mine')
+
+    reply = other.press('nav:cards')[0]
+
+    assert reply.text == 'Choose your card:'
+    assert card_buttons(reply) == ['card:show:7']
+
+
+def test_ukrainian_page_buttons(harness):
+    chat = harness.chat(language_code='uk')
+    add_cards(chat, 6)
+
+    reply = chat.press('nav:cards')[0]
+
+    assert reply.text == 'Оберіть картку (1/2):'
+    assert reply.buttons[-2] == [('Далі ➡️', 'cards:1')]
