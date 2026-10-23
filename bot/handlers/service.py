@@ -11,7 +11,18 @@ def validate_card_number(card_number: str) -> bool:
         sum(divmod(d * 2, 10)) for d in r[1::2])) % 10 == 0
 
 
+# Longer nicknames make the card view exceed Telegram's message size
+MAX_NICKNAME_LENGTH = 32
+
+
+def nickname_too_long(card_nickname: str) -> bool:
+    return len(card_nickname.strip()) > MAX_NICKNAME_LENGTH
+
+
 def validate_card_nickname(card_nickname: str) -> bool:
+    if nickname_too_long(card_nickname):
+        return False
+
     nick = card_nickname.split()
 
     if len(nick) != 1:

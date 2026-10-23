@@ -11,6 +11,8 @@ TEXTS = {
         'enter_nickname': 'Enter card nickname (without spaces):',
         'choose_another_nickname': 'Choose another nickname '
                                    '(without spaces):',
+        'nickname_too_long': 'Nickname must be at most {limit} '
+                             'characters long:',
         'nickname_not_unique': 'Nickname of your card should be unique.\n'
                                'Choose another nickname (without spaces):',
         'card_added': 'Card added.',
@@ -71,6 +73,8 @@ TEXTS = {
         'card_not_supported': 'Картки «Мир» не підтримуються.',
         'enter_nickname': 'Введіть назву картки (без пробілів):',
         'choose_another_nickname': 'Оберіть іншу назву (без пробілів):',
+        'nickname_too_long': 'Назва має бути не довшою за {limit} '
+                             'символи:',
         'nickname_not_unique': 'Назва картки має бути унікальною.\n'
                                'Оберіть іншу назву (без пробілів):',
         'card_added': 'Картку додано.',
