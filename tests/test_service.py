@@ -67,3 +67,10 @@ def test_card_label_without_brand():
 ])
 def test_format_card_number(card_number, formatted):
     assert format_card_number(card_number) == formatted
+
+
+def test_nickname_length_limit():
+    from bot.handlers.service import MAX_NICKNAME_LENGTH
+
+    assert validate_card_nickname('x' * MAX_NICKNAME_LENGTH)
+    assert not validate_card_nickname('x' * (MAX_NICKNAME_LENGTH + 1))

@@ -16,7 +16,8 @@ from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .hiding import schedule_hide, cancel_hide
-from .service import card_label, format_card_number
+from .service import card_label, format_card_number, nickname_too_long, \
+    MAX_NICKNAME_LENGTH
 
 CARDS_PER_PAGE = 5
 
@@ -81,6 +82,13 @@ def card_view_text(lang: str, card_nickname: str, card_number: str) -> str:
     return t(lang, 'card_view',
              nickname=escape(card_nickname),
              number=format_card_number(card_number))
+
+
+def nickname_error(lang: str, card_nickname: str) -> str:
+    if nickname_too_long(card_nickname):
+        return t(lang, 'nickname_too_long', limit=MAX_NICKNAME_LENGTH)
+
+    return t(lang, 'choose_another_nickname')
 
 
 async def cards_limit_reached(user_id: int) -> bool:
@@ -182,7 +190,7 @@ async def add_card_2_fail(message: Message, state: FSMContext) -> None:
     await delete_user_message(message)
 
     await edit_prompt(message, state,
-                      text=t(lang, 'choose_another_nickname'),
+                      text=nickname_error(lang, message.text),
                       reply_markup=cancel_ikb(lang))
 
 
@@ -427,7 +435,7 @@ async def rename_card_fail_handler(message: Message,
     await delete_user_message(message)
 
     await edit_prompt(message, state,
-                      text=t(lang, 'choose_another_nickname'),
+                      text=nickname_error(lang, message.text),
                       reply_markup=rename_ikb(card_id, lang))
 
 
