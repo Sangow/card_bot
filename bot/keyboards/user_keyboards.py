@@ -37,7 +37,8 @@ def card_ikb(card_id: int) -> InlineKeyboardMarkup:
             callback_data=card_cb.new(action='edit', card_id=card_id)),
         InlineKeyboardButton(
             text='❌ Delete',
-            callback_data=card_cb.new(action='delete', card_id=card_id))
+            callback_data=card_cb.new(action='confirm_delete',
+                                      card_id=card_id))
     ).add(InlineKeyboardButton(text='⬅️ Back',
                                callback_data=nav_cb.new(to='cards')))
 

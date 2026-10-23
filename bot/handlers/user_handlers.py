@@ -5,7 +5,8 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, \
     InlineKeyboardMarkup
 from aiogram.utils.exceptions import MessageNotModified
 
-from bot.keyboards import main_ikb, cancel_ikb, cards_ikb, card_ikb, edit_ikb
+from bot.keyboards import main_ikb, cancel_ikb, cards_ikb, card_ikb, edit_ikb, \
+    delete_confirm_ikb
 from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
     edit_card_by_id
 from bot.states import AddCard, ShowCard
@@ -171,6 +172,25 @@ async def edit_card_number_handler(
     await message.answer(text='Information saved.',
                          reply_markup=main_ikb)
     await state.finish()
+
+
+async def confirm_delete_card_handler(call: CallbackQuery,
+                                      callback_data: dict,
+                                      state: FSMContext) -> None:
+    await state.finish()
+
+    card_id = int(callback_data['card_id'])
+    card = await get_card(user_id=call.from_user.id, card_id=card_id)
+
+    if card is None:
+        await call.answer(text='Card not found.', show_alert=True)
+        return
+
+    card_nickname, _ = card
+
+    await edit_message(call, text=f'Delete card "{card_nickname}"?',
+                       reply_markup=delete_confirm_ikb(card_id))
+    await call.answer()
 
 
 async def delete_card_handler(call: CallbackQuery,
