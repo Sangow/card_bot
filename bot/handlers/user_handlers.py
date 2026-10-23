@@ -126,7 +126,7 @@ async def edit_card_number_handler(
     async with state.proxy() as data:
         await edit_card(user_id=message.from_user.id,
                         card_nickname=data['card_nickname'],
-                        new_card_number=message.text)
+                        new_card_number=message.text.replace(' ', ''))
 
     await message.answer(text='Information saved.',
                          reply_markup=start_kb)
