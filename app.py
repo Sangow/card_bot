@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot import prepare_all
-from bot.config import API_TOKEN, LOG_LEVEL
+from bot.config import API_TOKEN, CARD_KEY, LOG_LEVEL
 
 logging.basicConfig(
     level=LOG_LEVEL,
@@ -13,6 +13,8 @@ logging.basicConfig(
 
 if not API_TOKEN:
     raise SystemExit('API_TOKEN environment variable is not set')
+if not CARD_KEY:
+    raise SystemExit('CARD_KEY environment variable is not set')
 
 storage = MemoryStorage()
 bot = Bot(token=API_TOKEN)
