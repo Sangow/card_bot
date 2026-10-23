@@ -25,6 +25,7 @@ Telegram-бот [@cardnumber_bot](https://t.me/cardnumber_bot), який збе�
 | `HIDE_AFTER` | ні | `120` | Через скільки секунд показаний номер ховається |
 | `ADMIN_CHAT_ID` | ні | — | Telegram chat id, куди бот надсилає сповіщення про помилки та запуск. Без нього сповіщень немає |
 | `STARTUP_ALERT` | ні | `1` | `0` вимикає повідомлення про запуск бота, сповіщення про помилки лишаються |
+| `ALERT_TIMEZONE` | ні | `Europe/Kyiv` | Часовий пояс для часу в сповіщеннях |
 
 На Fly вони задаються як секрети: `fly secrets set MAX_CARDS=30 -a card-bot`.
 
