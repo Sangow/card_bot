@@ -7,6 +7,7 @@ from bot.states import AddCard, ShowCard
 from .error_handlers import errors_handler
 from .fallback import non_text_in_dialog_handler, \
     card_number_outside_dialog_handler, not_understood_handler, \
+    invalid_card_button, invalid_button_handler, \
     NICKNAME_STATES, NUMBER_STATES
 from .private_only import not_private, group_message_handler, \
     group_callback_handler
@@ -30,6 +31,9 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 state='*')
     dp.register_callback_query_handler(group_callback_handler,
                                        not_private,
+                                       state='*')
+    dp.register_callback_query_handler(invalid_button_handler,
+                                       invalid_card_button,
                                        state='*')
 
     dp.register_message_handler(cmd_start,
