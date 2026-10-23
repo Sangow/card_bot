@@ -21,8 +21,10 @@ class Chat:
                      'language_code': language_code}
 
     def send(self, text: str) -> list:
+        self.last_message_id = next(self.harness.ids)
+
         return self.harness.process({'message': {
-            'message_id': next(self.harness.ids),
+            'message_id': self.last_message_id,
             'date': 0,
             'chat': {'id': self.user['id'], 'type': 'private'},
             'from': self.user,
@@ -93,6 +95,13 @@ class Harness:
         # does, so aiogram's per-update context does not leak between them
         self.loop.run_until_complete(
             self.dp.process_update(types.Update(**update)))
+
+        return [Reply(method, data) for method, data in self.calls[start:]]
+
+    def wait(self, seconds: float) -> list:
+        """Lets timers run for a while and returns what the bot did."""
+        start = len(self.calls)
+        self.loop.run_until_complete(asyncio.sleep(seconds))
 
         return [Reply(method, data) for method, data in self.calls[start:]]
 
