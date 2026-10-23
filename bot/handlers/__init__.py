@@ -13,7 +13,7 @@ from .private_only import not_private, group_message_handler, \
 from .service import validate_card_number, validate_card_nickname, \
     is_mir_card, looks_like_card_number
 from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
-    cmd_help, main_menu_handler, \
+    cmd_help, main_menu_handler, dismiss_handler, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, \
     add_card_3_not_supported, edit_card_number_not_supported_handler, \
     show_cards_handler, show_card_handler, edit_card_handler, \
@@ -59,6 +59,9 @@ async def register_handlers(dp: Dispatcher) -> None:
 
     dp.register_callback_query_handler(main_menu_handler,
                                        nav_cb.filter(to='main'),
+                                       state='*')
+    dp.register_callback_query_handler(dismiss_handler,
+                                       nav_cb.filter(to='dismiss'),
                                        state='*')
 
     dp.register_callback_query_handler(add_card_1,

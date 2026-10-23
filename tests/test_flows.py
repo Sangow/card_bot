@@ -1,3 +1,5 @@
+import pytest
+
 import bot.handlers.user_handlers as user_handlers
 from conftest import add_card
 
@@ -5,8 +7,11 @@ from conftest import add_card
 def test_start_shows_menu_and_removes_old_keyboard(chat):
     replies = chat.send('/start')
 
-    assert replies[0].markup == {'remove_keyboard': True}
-    assert replies[1].callbacks == ['nav:cards', 'nav:add']
+    # The user's /start is deleted first
+    assert replies[0].method == 'deleteMessage'
+    assert replies[0].data['message_id'] == chat.last_message_id
+    assert replies[1].markup == {'remove_keyboard': True}
+    assert replies[2].callbacks == ['nav:cards', 'nav:add']
 
 
 def test_add_card(chat, harness):
@@ -173,7 +178,7 @@ def test_cards_limit(chat, harness, monkeypatch):
     add_card(chat, '4242424242424242', 'a')
     add_card(chat, '5555555555554444', 'b')
 
-    assert chat.send('/add')[0].text.startswith('You can keep up to 2 cards')
+    assert chat.send('/add')[-1].text.startswith('You can keep up to 2 cards')
     assert chat.press('nav:add')[0].text.startswith('You can keep up to 2')
     assert chat.state() is None
 
@@ -207,13 +212,13 @@ def test_help_keeps_current_input(chat):
     chat.send('/add')
     replies = chat.send('/help')
 
-    assert '/cards' in replies[0].text
+    assert '/cards' in replies[-1].text
     assert chat.state() == 'AddCard:card_nickname'
 
 
 def test_old_reply_keyboard_buttons_open_menu(chat):
     for text in ('SHOW CARDS', 'ADD CARD', 'CANCEL'):
-        replies = chat.send(text)
+        replies = [r for r in chat.send(text) if r.method != 'deleteMessage']
 
         assert replies[0].markup == {'remove_keyboard': True}
         assert replies[1].callbacks == ['nav:cards', 'nav:add']
@@ -224,8 +229,8 @@ def test_ukrainian_user_gets_ukrainian_texts(harness):
 
     replies = chat.send('/start')
 
-    assert replies[1].text == 'Оберіть дію:'
-    assert replies[1].buttons[0][0][0] == '💳 Мої картки'
+    assert replies[2].text == 'Оберіть дію:'
+    assert replies[2].buttons[0][0][0] == '💳 Мої картки'
 
 
 def test_errors_are_reported_to_user(chat, monkeypatch):
@@ -434,3 +439,58 @@ def test_too_long_nickname_in_ukrainian(harness):
 
     assert chat.send('x' * 33)[-1].text == \
         'Назва має бути не довшою за 32 символи:'
+
+
+@pytest.mark.parametrize('first, second', [('mono', 'MONO'),
+                                           ('Mono', 'mono'),
+                                           ('Моно', 'моно')])
+def test_nickname_in_other_case_is_taken(chat, harness, first, second):
+    add_card(chat, '4242424242424242', first)
+
+    chat.send('/add')
+    replies = chat.send(second)
+
+    assert replies[-1].text.startswith('Nickname of your card should be unique')
+    assert chat.state() == 'AddCard:card_nickname'
+    assert len(harness.rows()) == 1
+
+
+def test_rename_to_other_card_in_other_case_is_rejected(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+    add_card(chat, '5555555555554444', 'privat')
+    chat.press('card:rename:2')
+
+    replies = chat.send('MONO')
+
+    assert replies[-1].text.startswith('Nickname of your card should be unique')
+    assert ('42', '5555555555554444', 'privat') in harness.rows()
+
+
+def test_card_can_be_renamed_to_its_own_nickname_in_other_case(chat,
+                                                                harness):
+    add_card(chat, '4242424242424242', 'mono')
+    chat.press('card:rename:1')
+
+    chat.send('Mono')
+
+    # The case the user typed is kept
+    assert harness.rows() == [('42', '4242424242424242', 'Mono')]
+
+
+def test_other_users_may_use_the_same_nickname_in_any_case(harness):
+    first = harness.chat(user_id=1)
+    second = harness.chat(user_id=2)
+    add_card(first, '4242424242424242', 'mono')
+
+    add_card(second, '5555555555554444', 'MONO')
+
+    assert ('2', '5555555555554444', 'MONO') in harness.rows()
+
+
+@pytest.mark.parametrize('command', ['/start', '/cards', '/add', '/help',
+                                     '/cancel'])
+def test_commands_are_deleted(chat, command):
+    replies = chat.send(command)
+
+    assert replies[0].method == 'deleteMessage'
+    assert replies[0].data['message_id'] == chat.last_message_id

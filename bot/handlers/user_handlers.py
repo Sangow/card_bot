@@ -101,6 +101,9 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
+    # Commands are deleted, so the chat keeps only the bot's messages
+    await delete_user_message(message)
+
     # Removes the old reply keyboard for users who still have it
     await message.answer(text=t(lang, 'welcome'),
                          reply_markup=ReplyKeyboardRemove())
@@ -114,6 +117,8 @@ async def cmd_cancel(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
+    await delete_user_message(message)
+
     await message.answer(text=t(lang, 'cancelled'),
                          reply_markup=ReplyKeyboardRemove())
     await message.answer(text=t(lang, 'choose_action'),
@@ -126,6 +131,8 @@ async def cmd_cards(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
+    await delete_user_message(message)
+
     text, reply_markup = await cards_list(user_id=message.from_user.id,
                                           lang=lang)
 
@@ -137,6 +144,8 @@ async def cmd_add(message: Message, state: FSMContext) -> None:
 
     if await state.get_state():
         await state.finish()
+
+    await delete_user_message(message)
 
     if await cards_limit_reached(user_id=message.from_user.id):
         await message.answer(text=t(lang, 'cards_limit', limit=MAX_CARDS),
@@ -152,6 +161,8 @@ async def cmd_add(message: Message, state: FSMContext) -> None:
 async def cmd_help(message: Message) -> None:
     lang = get_lang(message.from_user)
 
+    await delete_user_message(message)
+
     await message.answer(text=t(lang, 'help'), reply_markup=main_ikb(lang))
 
 
@@ -162,6 +173,13 @@ async def main_menu_handler(call: CallbackQuery, state: FSMContext) -> None:
 
     await edit_message(call, text=t(lang, 'choose_action'),
                        reply_markup=main_ikb(lang))
+    await call.answer()
+
+
+async def dismiss_handler(call: CallbackQuery) -> None:
+    # The Read button under an error message removes that message
+    with suppress(TelegramAPIError):
+        await call.message.delete()
     await call.answer()
 
 
@@ -447,6 +465,15 @@ async def rename_card_save_handler(message: Message,
         card_id = data['card_id']
 
     await delete_user_message(message)
+
+    # The card's own nickname is allowed, so its case can be changed
+    if await nickname_taken(user_id=message.from_user.id,
+                            card_nickname=message.text,
+                            except_card_id=card_id):
+        await edit_prompt(message, state,
+                          text=t(lang, 'nickname_not_unique'),
+                          reply_markup=rename_ikb(card_id, lang))
+        return
 
     try:
         await rename_card_by_id(user_id=message.from_user.id,

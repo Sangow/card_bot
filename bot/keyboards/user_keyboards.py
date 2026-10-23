@@ -102,3 +102,10 @@ def delete_confirm_ikb(card_id: int, lang: str) -> InlineKeyboardMarkup:
             text=t(lang, 'btn_no'),
             callback_data=card_cb.new(action='show', card_id=card_id))
     )
+
+
+def read_ikb(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup().add(
+        InlineKeyboardButton(text=t(lang, 'btn_read'),
+                             callback_data=nav_cb.new(to='dismiss'))
+    )

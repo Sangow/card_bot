@@ -105,7 +105,7 @@ def test_failed_alert_does_not_break_error_handling(chat, broken_list,
     replies = chat.press('nav:cards')
 
     assert replies[0].text == 'Something went wrong. Please try again.'
-    assert chat.send('/start')[1].text == 'Choose an action:'
+    assert chat.send('/start')[-1].text == 'Choose an action:'
 
 
 
@@ -121,6 +121,7 @@ def test_startup_is_reported_to_admin(harness):
 
     alert, = admin_messages(harness)
     assert alert.text.startswith('✅ Бот запущено')
+    assert alert.buttons == [[('✅ Прочитано', 'nav:dismiss')]]
 
 
 def test_startup_alert_can_be_turned_off(harness, monkeypatch):
@@ -146,7 +147,7 @@ def test_bot_starts_when_startup_alert_fails(harness, chat):
     finally:
         Bot.send_message = original
 
-    assert chat.send('/start')[1].text == 'Choose an action:'
+    assert chat.send('/start')[-1].text == 'Choose an action:'
 
 
 def test_alert_time_is_in_kyiv_time(chat, broken_list):
@@ -161,3 +162,33 @@ def test_alert_time_is_in_kyiv_time(chat, broken_list):
     # Either minute, in case the clock ticked over during the test
     assert any(f'Дата/час: {t:%d.%m %H:%M}' in alert.text
                for t in (before, after, after + timedelta(seconds=0)))
+
+
+def test_admin_alert_has_read_button(chat, broken_list):
+    alert, = alerts_in(chat.press('nav:cards'))
+
+    assert alert.buttons == [[('✅ Прочитано', 'nav:dismiss')]]
+
+
+def test_user_gets_error_message(chat, monkeypatch):
+    async def broken(**kwargs):
+        raise RuntimeError('db is down')
+
+    monkeypatch.setattr(user_handlers, 'nickname_taken', broken)
+    chat.send('/add')
+
+    replies = chat.send('mono')
+
+    assert 'Something went wrong. Please try again.' in [r.text for r in replies]
+
+
+def test_read_button_deletes_the_message(chat):
+    chat.send('/add')
+
+    replies = chat.press('nav:dismiss')
+
+    assert [r.method for r in replies] == ['deleteMessage',
+                                           'answerCallbackQuery']
+    assert replies[0].data['message_id'] == 1
+    # Whatever the user was doing goes on
+    assert chat.state() == 'AddCard:card_nickname'
