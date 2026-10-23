@@ -1,0 +1,69 @@
+import pytest
+
+from bot.handlers.service import validate_card_number, \
+    validate_card_nickname, card_brand, card_label, format_card_number
+
+
+@pytest.mark.parametrize('card_number', [
+    '4242424242424242',
+    '4242 4242 4242 4242',
+    '5555555555554444',
+    '378282246310005',
+    '4222222222222',
+])
+def test_valid_card_numbers(card_number):
+    assert validate_card_number(card_number)
+
+
+@pytest.mark.parametrize('card_number', [
+    '4242424242424241',     # wrong checksum
+    '424242424242',         # too short
+    '42424242424242424242',  # too long
+    '4242abcd42424242',     # letters
+    '',
+])
+def test_invalid_card_numbers(card_number):
+    assert not validate_card_number(card_number)
+
+
+@pytest.mark.parametrize('card_nickname', ['mono', 'privat&co', 'Моно'])
+def test_valid_nicknames(card_nickname):
+    assert validate_card_nickname(card_nickname)
+
+
+@pytest.mark.parametrize('card_nickname', ['two words', '<b>', 'a>b', '', ' '])
+def test_invalid_nicknames(card_nickname):
+    assert not validate_card_nickname(card_nickname)
+
+
+@pytest.mark.parametrize('card_number, brand', [
+    ('4242424242424242', 'Visa'),
+    ('5555555555554444', 'MC'),
+    ('2223003122003222', 'MC'),
+    ('378282246310005', 'Amex'),
+    ('6011111111111117', 'Discover'),
+    ('3530111333300000', 'JCB'),
+    ('6200000000000005', 'UnionPay'),
+    ('5018000000000009', 'Maestro'),
+    ('9804000000000000', 'ПРОСТІР'),
+    ('1234567812345670', None),
+])
+def test_card_brand(card_number, brand):
+    assert card_brand(card_number) == brand
+
+
+def test_card_label_with_brand():
+    assert card_label('mono', '4242424242424242') == 'mono •••• 4242 · Visa'
+
+
+def test_card_label_without_brand():
+    assert card_label('mono', '1234567812345670') == 'mono •••• 5670'
+
+
+@pytest.mark.parametrize('card_number, formatted', [
+    ('4242424242424242', '4242 4242 4242 4242'),
+    ('378282246310005', '3782 822463 10005'),
+    ('4222222222222', '4222 2222 2222 2'),
+])
+def test_format_card_number(card_number, formatted):
+    assert format_card_number(card_number) == formatted
