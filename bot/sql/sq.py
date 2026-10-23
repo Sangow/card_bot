@@ -238,3 +238,16 @@ async def nickname_taken(user_id: str, card_nickname: str,
             (user_id,)
         )
     )
+
+
+async def stats() -> dict:
+    users, cards, most = cur.execute(
+        'SELECT COUNT(DISTINCT user_id), COUNT(*), '
+        '(SELECT COUNT(*) FROM cards GROUP BY user_id '
+        'ORDER BY COUNT(*) DESC LIMIT 1) '
+        'FROM cards'
+    ).fetchone()
+    dialogs = cur.execute('SELECT COUNT(*) FROM fsm').fetchone()[0]
+
+    return {'users': users, 'cards': cards, 'most': most or 0,
+            'dialogs': dialogs}
