@@ -1,3 +1,5 @@
+import pytest
+
 import bot.handlers.user_handlers as user_handlers
 from conftest import add_card
 
@@ -434,3 +436,49 @@ def test_too_long_nickname_in_ukrainian(harness):
 
     assert chat.send('x' * 33)[-1].text == \
         'Назва має бути не довшою за 32 символи:'
+
+
+@pytest.mark.parametrize('first, second', [('mono', 'MONO'),
+                                           ('Mono', 'mono'),
+                                           ('Моно', 'моно')])
+def test_nickname_in_other_case_is_taken(chat, harness, first, second):
+    add_card(chat, '4242424242424242', first)
+
+    chat.send('/add')
+    replies = chat.send(second)
+
+    assert replies[-1].text.startswith('Nickname of your card should be unique')
+    assert chat.state() == 'AddCard:card_nickname'
+    assert len(harness.rows()) == 1
+
+
+def test_rename_to_other_card_in_other_case_is_rejected(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+    add_card(chat, '5555555555554444', 'privat')
+    chat.press('card:rename:2')
+
+    replies = chat.send('MONO')
+
+    assert replies[-1].text.startswith('Nickname of your card should be unique')
+    assert ('42', '5555555555554444', 'privat') in harness.rows()
+
+
+def test_card_can_be_renamed_to_its_own_nickname_in_other_case(chat,
+                                                                harness):
+    add_card(chat, '4242424242424242', 'mono')
+    chat.press('card:rename:1')
+
+    chat.send('Mono')
+
+    # The case the user typed is kept
+    assert harness.rows() == [('42', '4242424242424242', 'Mono')]
+
+
+def test_other_users_may_use_the_same_nickname_in_any_case(harness):
+    first = harness.chat(user_id=1)
+    second = harness.chat(user_id=2)
+    add_card(first, '4242424242424242', 'mono')
+
+    add_card(second, '5555555555554444', 'MONO')
+
+    assert ('2', '5555555555554444', 'MONO') in harness.rows()

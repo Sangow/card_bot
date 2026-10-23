@@ -448,6 +448,15 @@ async def rename_card_save_handler(message: Message,
 
     await delete_user_message(message)
 
+    # The card's own nickname is allowed, so its case can be changed
+    if await nickname_taken(user_id=message.from_user.id,
+                            card_nickname=message.text,
+                            except_card_id=card_id):
+        await edit_prompt(message, state,
+                          text=t(lang, 'nickname_not_unique'),
+                          reply_markup=rename_ikb(card_id, lang))
+        return
+
     try:
         await rename_card_by_id(user_id=message.from_user.id,
                                 card_id=card_id,

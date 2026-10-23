@@ -225,10 +225,16 @@ async def count_cards(user_id: str) -> int:
     ).fetchone()[0]
 
 
-async def nickname_taken(user_id: str, card_nickname: str) -> bool:
-    return cur.execute(
-        'SELECT 1 '
-        'FROM cards '
-        'WHERE user_id=(?) AND card_nickname=(?)',
-        (user_id, card_nickname)
-    ).fetchone() is not None
+async def nickname_taken(user_id: str, card_nickname: str,
+                         except_card_id: int | None = None) -> bool:
+    # Compared in Python: SQLite's lower() only folds ASCII, so "Моно" and
+    # "моно" would count as different there
+    wanted = card_nickname.casefold()
+
+    return any(
+        card_id != except_card_id and nickname.casefold() == wanted
+        for card_id, nickname in cur.execute(
+            'SELECT id, card_nickname FROM cards WHERE user_id=(?)',
+            (user_id,)
+        )
+    )
