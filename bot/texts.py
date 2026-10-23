@@ -32,6 +32,8 @@ TEXTS = {
         'delete_confirm': 'Delete card "{nickname}"?',
         'card_deleted': 'Card deleted.',
         'error': 'Something went wrong. Please try again.',
+        'private_only': 'I only work in private messages. '
+                        'Open a chat with me to manage your cards.',
         'help': 'Card bot keeps your card numbers so you can copy them '
                 'quickly.\n\n'
                 '/cards - your cards: tap one to see and copy the number, '
@@ -90,6 +92,8 @@ TEXTS = {
         'delete_confirm': 'Видалити картку «{nickname}»?',
         'card_deleted': 'Картку видалено.',
         'error': 'Щось пішло не так. Спробуйте ще раз.',
+        'private_only': 'Я працюю лише в особистих повідомленнях. '
+                        'Відкрийте чат зі мною, щоб керувати картками.',
         'help': 'Card bot зберігає номери ваших карток, щоб їх можна було '
                 'швидко скопіювати.\n\n'
                 '/cards - ваші картки: натисніть на картку, щоб побачити й '

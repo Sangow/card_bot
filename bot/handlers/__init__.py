@@ -1,9 +1,12 @@
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Command, CommandStart, Text
+from aiogram.types import ContentTypes
 
 from bot.keyboards import nav_cb, card_cb, cards_cb
 from bot.states import AddCard, ShowCard
 from .error_handlers import errors_handler
+from .private_only import not_private, group_message_handler, \
+    group_callback_handler
 from .service import validate_card_number, validate_card_nickname, \
     is_mir_card
 from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
@@ -17,6 +20,15 @@ from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
 
 
 async def register_handlers(dp: Dispatcher) -> None:
+    # Registered first, so nothing else runs outside private chats
+    dp.register_message_handler(group_message_handler,
+                                not_private,
+                                content_types=ContentTypes.ANY,
+                                state='*')
+    dp.register_callback_query_handler(group_callback_handler,
+                                       not_private,
+                                       state='*')
+
     dp.register_message_handler(cmd_start,
                                 CommandStart(),
                                 state='*')
