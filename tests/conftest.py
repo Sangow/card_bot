@@ -5,11 +5,11 @@ import json
 import pytest
 from aiogram import Bot, Dispatcher, types
 from cryptography.fernet import Fernet
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 import bot.handlers.hiding as hiding
 import bot.sql.sq as sq
 from bot import prepare_all
+from bot.sql.storage import SQLiteStorage
 
 
 class Chat:
@@ -86,7 +86,7 @@ class Harness:
         self.calls = []
 
         self.bot = Bot(token='123456:TEST')
-        self.dp = Dispatcher(self.bot, storage=MemoryStorage())
+        self.dp = Dispatcher(self.bot, storage=SQLiteStorage())
         Bot.set_current(self.bot)
         Dispatcher.set_current(self.dp)
 

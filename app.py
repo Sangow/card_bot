@@ -1,10 +1,10 @@
 import logging
 
 from aiogram import Bot, Dispatcher, executor
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot import prepare_all, shutdown_all
 from bot.config import API_TOKEN, CARD_KEY, LOG_LEVEL
+from bot.sql.storage import SQLiteStorage
 
 logging.basicConfig(
     level=LOG_LEVEL,
@@ -16,7 +16,7 @@ if not API_TOKEN:
 if not CARD_KEY:
     raise SystemExit('CARD_KEY environment variable is not set')
 
-storage = MemoryStorage()
+storage = SQLiteStorage()
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot=bot, storage=storage)
 
