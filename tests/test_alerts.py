@@ -192,3 +192,12 @@ def test_read_button_deletes_the_message(chat):
     assert replies[0].data['message_id'] == 1
     # Whatever the user was doing goes on
     assert chat.state() == 'AddCard:card_nickname'
+
+
+@pytest.mark.parametrize('payload', ['card:show:abc', 'card:edit:-1',
+                                     'cards:x', 'card:show:' + '9' * 30])
+def test_malformed_card_button_is_ignored(chat, payload):
+    replies = chat.press(payload)
+
+    assert [r.method for r in replies] == ['answerCallbackQuery']
+    assert alerts_in(replies) == []
