@@ -105,7 +105,7 @@ def test_failed_alert_does_not_break_error_handling(chat, broken_list,
     replies = chat.press('nav:cards')
 
     assert replies[0].text == 'Something went wrong. Please try again.'
-    assert chat.send('/start')[1].text == 'Choose an action:'
+    assert chat.send('/start')[-1].text == 'Choose an action:'
 
 
 
@@ -146,7 +146,7 @@ def test_bot_starts_when_startup_alert_fails(harness, chat):
     finally:
         Bot.send_message = original
 
-    assert chat.send('/start')[1].text == 'Choose an action:'
+    assert chat.send('/start')[-1].text == 'Choose an action:'
 
 
 def test_alert_time_is_in_kyiv_time(chat, broken_list):
