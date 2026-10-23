@@ -2,7 +2,7 @@ import pytest
 
 import bot.handlers.error_handlers as error_handlers
 import bot.handlers.user_handlers as user_handlers
-from conftest import add_card
+from conftest import Reply, add_card
 
 ADMIN = 777
 
@@ -105,4 +105,45 @@ def test_failed_alert_does_not_break_error_handling(chat, broken_list,
     replies = chat.press('nav:cards')
 
     assert replies[0].text == 'Something went wrong. Please try again.'
+    assert chat.send('/start')[1].text == 'Choose an action:'
+
+
+
+def admin_messages(harness) -> list:
+    return [Reply(method, data) for method, data in harness.calls
+            if method == 'sendMessage' and data.get('chat_id') == ADMIN]
+
+
+def test_startup_is_reported_to_admin(harness):
+    harness.calls.clear()
+
+    harness.restart()
+
+    alert, = admin_messages(harness)
+    assert alert.text.startswith('✅ Бот запущено')
+
+
+def test_startup_alert_can_be_turned_off(harness, monkeypatch):
+    monkeypatch.setattr(error_handlers, 'STARTUP_ALERT', False)
+    harness.calls.clear()
+
+    harness.restart()
+
+    assert admin_messages(harness) == []
+
+
+def test_bot_starts_when_startup_alert_fails(harness, chat):
+    from aiogram import Bot
+
+    original = Bot.send_message
+
+    async def telegram_down(self, chat_id, *args, **kwargs):
+        raise RuntimeError('cannot reach admin')
+
+    Bot.send_message = telegram_down
+    try:
+        harness.restart()
+    finally:
+        Bot.send_message = original
+
     assert chat.send('/start')[1].text == 'Choose an action:'
