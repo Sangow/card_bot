@@ -190,3 +190,23 @@ def test_edited_number_is_stored_encrypted(start, db_path, key):
     assert stored.startswith('gAAAAA')
     assert run(sq.get_card(user_id='1', card_id=1)) == (
         'mono', '5555555555554444')
+
+
+def test_version_1_database_gets_states_table(start, db_path, key):
+    db = sqlite3.connect(db_path)
+    db.execute(sq.CREATE_CARDS.format(table='cards'))
+    db.execute('INSERT INTO cards (user_id, card_number, card_nickname) '
+               'VALUES (?, ?, ?)',
+               ('1', Fernet(key).encrypt(b'4242424242424242').decode(),
+                'mono'))
+    db.execute('PRAGMA user_version = 1')
+    db.commit()
+    db.close()
+
+    start(key)
+
+    assert user_version(db_path) == 2
+    tables = {name for (name,) in raw(
+        db_path, "SELECT name FROM sqlite_master WHERE type='table'")}
+    assert {'cards', 'fsm'} <= tables
+    assert run(sq.get_cards(user_id='1')) == [(1, 'mono', '4242424242424242')]
