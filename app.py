@@ -1,12 +1,14 @@
-from os import getenv
-
 from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot import prepare_all
+from bot.config import API_TOKEN
+
+if not API_TOKEN:
+    raise SystemExit('API_TOKEN environment variable is not set')
 
 storage = MemoryStorage()
-bot = Bot(token=getenv(key='API_TOKEN'))
+bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot=bot, storage=storage)
 
 
