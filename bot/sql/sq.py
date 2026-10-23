@@ -65,3 +65,16 @@ async def edit_card_by_id(
         (new_card_number, user_id, card_id)
     )
     db.commit()
+
+
+async def rename_card_by_id(
+        user_id: str,
+        card_id: int,
+        new_card_nickname: str) -> None:
+    cur.execute(
+        'UPDATE cards '
+        'SET card_nickname=(?) '
+        'WHERE user_id=(?) AND rowid=(?)',
+        (new_card_nickname, user_id, card_id)
+    )
+    db.commit()
