@@ -12,7 +12,7 @@ jobs:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Same Python version as the Fly buildpack uses in production
       - uses: actions/setup-python@v5
