@@ -47,3 +47,14 @@ def edit_ikb(card_id: int) -> InlineKeyboardMarkup:
         text='↩️ Leave previous',
         callback_data=card_cb.new(action='show', card_id=card_id)
     ))
+
+
+def delete_confirm_ikb(card_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(row_width=2).add(
+        InlineKeyboardButton(
+            text='✅ Yes, delete',
+            callback_data=card_cb.new(action='delete', card_id=card_id)),
+        InlineKeyboardButton(
+            text='↩️ No',
+            callback_data=card_cb.new(action='show', card_id=card_id))
+    )
