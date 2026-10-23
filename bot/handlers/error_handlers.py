@@ -94,8 +94,7 @@ async def errors_handler(update: Update, exception: Exception) -> bool:
                                                show_alert=True)
         elif update.message:
             lang = get_lang(update.message.from_user)
-            await update.message.answer(text=t(lang, 'error'),
-                                        reply_markup=read_ikb(lang))
+            await update.message.answer(text=t(lang, 'error'))
 
     await notify_admin(update, exception)
 

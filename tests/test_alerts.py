@@ -170,7 +170,8 @@ def test_admin_alert_has_read_button(chat, broken_list):
     assert alert.buttons == [[('✅ Прочитано', 'nav:dismiss')]]
 
 
-def test_user_error_message_has_read_button(chat, monkeypatch):
+
+def test_user_error_message_has_no_read_button(chat, monkeypatch):
     async def broken(**kwargs):
         raise RuntimeError('db is down')
 
@@ -180,8 +181,7 @@ def test_user_error_message_has_read_button(chat, monkeypatch):
     replies = chat.send('mono')
 
     error, = [r for r in replies if r.text.startswith('Something went wrong')]
-    assert error.buttons == [[('✅ Read', 'nav:dismiss')]]
-
+    assert error.buttons == []
 
 def test_read_button_deletes_the_message(chat):
     chat.send('/add')
