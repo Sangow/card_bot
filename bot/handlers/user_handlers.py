@@ -101,6 +101,9 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
     if await state.get_state():
         await state.finish()
 
+    # Keeps the chat to the bot's menu, without the user's /start
+    await delete_user_message(message)
+
     # Removes the old reply keyboard for users who still have it
     await message.answer(text=t(lang, 'welcome'),
                          reply_markup=ReplyKeyboardRemove())

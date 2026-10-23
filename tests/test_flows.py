@@ -7,8 +7,11 @@ from conftest import add_card
 def test_start_shows_menu_and_removes_old_keyboard(chat):
     replies = chat.send('/start')
 
-    assert replies[0].markup == {'remove_keyboard': True}
-    assert replies[1].callbacks == ['nav:cards', 'nav:add']
+    # The user's /start is deleted first
+    assert replies[0].method == 'deleteMessage'
+    assert replies[0].data['message_id'] == chat.last_message_id
+    assert replies[1].markup == {'remove_keyboard': True}
+    assert replies[2].callbacks == ['nav:cards', 'nav:add']
 
 
 def test_add_card(chat, harness):
@@ -215,7 +218,7 @@ def test_help_keeps_current_input(chat):
 
 def test_old_reply_keyboard_buttons_open_menu(chat):
     for text in ('SHOW CARDS', 'ADD CARD', 'CANCEL'):
-        replies = chat.send(text)
+        replies = [r for r in chat.send(text) if r.method != 'deleteMessage']
 
         assert replies[0].markup == {'remove_keyboard': True}
         assert replies[1].callbacks == ['nav:cards', 'nav:add']
@@ -226,8 +229,8 @@ def test_ukrainian_user_gets_ukrainian_texts(harness):
 
     replies = chat.send('/start')
 
-    assert replies[1].text == 'Оберіть дію:'
-    assert replies[1].buttons[0][0][0] == '💳 Мої картки'
+    assert replies[2].text == 'Оберіть дію:'
+    assert replies[2].buttons[0][0][0] == '💳 Мої картки'
 
 
 def test_errors_are_reported_to_user(chat, monkeypatch):
