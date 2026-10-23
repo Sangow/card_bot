@@ -1,7 +1,7 @@
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Command, CommandStart, Text
 
-from bot.keyboards import nav_cb, card_cb
+from bot.keyboards import nav_cb, card_cb, cards_cb
 from bot.states import AddCard, ShowCard
 from .error_handlers import errors_handler
 from .service import validate_card_number, validate_card_nickname
@@ -62,6 +62,9 @@ async def register_handlers(dp: Dispatcher) -> None:
 
     dp.register_callback_query_handler(show_cards_handler,
                                        nav_cb.filter(to='cards'),
+                                       state='*')
+    dp.register_callback_query_handler(show_cards_handler,
+                                       cards_cb.filter(),
                                        state='*')
     dp.register_callback_query_handler(show_card_handler,
                                        card_cb.filter(action='show'),
