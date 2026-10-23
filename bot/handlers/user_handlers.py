@@ -13,7 +13,7 @@ from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
     edit_card_by_id, rename_card_by_id
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
-from .service import card_label
+from .service import card_label, format_card_number
 
 
 async def edit_message(call: CallbackQuery, text: str,
@@ -28,7 +28,8 @@ async def edit_message(call: CallbackQuery, text: str,
 
 def card_view_text(lang: str, card_nickname: str, card_number: str) -> str:
     return t(lang, 'card_view',
-             nickname=escape(card_nickname), number=card_number)
+             nickname=escape(card_nickname),
+             number=format_card_number(card_number))
 
 
 async def cmd_start(message: Message, state: FSMContext) -> None:
