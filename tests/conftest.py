@@ -163,5 +163,5 @@ def chat(harness):
 
 def add_card(chat: Chat, card_number: str, card_nickname: str) -> list:
     chat.send('/add')
-    chat.send(card_number)
-    return chat.send(card_nickname)
+    chat.send(card_nickname)
+    return chat.send(card_number)

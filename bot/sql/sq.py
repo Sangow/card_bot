@@ -196,3 +196,12 @@ async def count_cards(user_id: str) -> int:
         'WHERE user_id=(?)',
         (user_id,)
     ).fetchone()[0]
+
+
+async def nickname_taken(user_id: str, card_nickname: str) -> bool:
+    return cur.execute(
+        'SELECT 1 '
+        'FROM cards '
+        'WHERE user_id=(?) AND card_nickname=(?)',
+        (user_id, card_nickname)
+    ).fetchone() is not None

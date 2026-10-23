@@ -12,10 +12,10 @@ def bot_messages(replies) -> list:
 
 def test_adding_from_button_edits_one_message(chat):
     replies = chat.press('nav:add')
-    replies += chat.send('1234')
-    replies += chat.send('4242 4242 4242 4242')
     replies += chat.send('two words')
     replies += chat.send('mono')
+    replies += chat.send('1234')
+    replies += chat.send('4242 4242 4242 4242')
 
     shown = [r for r in bot_messages(replies)
              if r.method != 'answerCallbackQuery']
@@ -28,8 +28,8 @@ def test_adding_from_button_edits_one_message(chat):
 
 def test_adding_from_command_edits_the_prompt(chat):
     prompt, = chat.send('/add')
-    replies = chat.send('4242424242424242')
-    replies += chat.send('mono')
+    replies = chat.send('mono')
+    replies += chat.send('4242424242424242')
 
     assert prompt.method == 'sendMessage'
     assert [(r.method, r.message_id) for r in bot_messages(replies)] == [
@@ -77,12 +77,12 @@ def test_deleted_prompt_is_replaced_by_a_new_message(chat, monkeypatch):
 
     monkeypatch.setattr(Bot, 'edit_message_text', prompt_gone)
 
-    first = bot_messages(chat.send('4242424242424242'))
-    second = bot_messages(chat.send('mono'))
+    first = bot_messages(chat.send('mono'))
+    second = bot_messages(chat.send('4242424242424242'))
 
     new_prompt, = first
     assert new_prompt.method == 'sendMessage'
-    assert new_prompt.text == 'Enter card nickname (without spaces):'
+    assert new_prompt.text == 'Enter card number:'
     assert [(r.method, r.message_id) for r in second] == [
         ('editMessageText', new_prompt.message_id)]
     assert second[0].text == 'Card added.'
