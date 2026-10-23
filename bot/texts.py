@@ -11,6 +11,8 @@ TEXTS = {
         'enter_nickname': 'Enter card nickname (without spaces):',
         'choose_another_nickname': 'Choose another nickname '
                                    '(without spaces):',
+        'nickname_too_long': 'Nickname must be at most {limit} '
+                             'characters long:',
         'nickname_not_unique': 'Nickname of your card should be unique.\n'
                                'Choose another nickname (without spaces):',
         'card_added': 'Card added.',
@@ -32,6 +34,8 @@ TEXTS = {
         'delete_confirm': 'Delete card "{nickname}"?',
         'card_deleted': 'Card deleted.',
         'error': 'Something went wrong. Please try again.',
+        'private_only': 'I only work in private messages. '
+                        'Open a chat with me to manage your cards.',
         'help': 'Card bot keeps your card numbers so you can copy them '
                 'quickly.\n\n'
                 '/cards - your cards: tap one to see and copy the number, '
@@ -69,6 +73,8 @@ TEXTS = {
         'card_not_supported': 'Картки «Мир» не підтримуються.',
         'enter_nickname': 'Введіть назву картки (без пробілів):',
         'choose_another_nickname': 'Оберіть іншу назву (без пробілів):',
+        'nickname_too_long': 'Назва має бути не довшою за {limit} '
+                             'символи:',
         'nickname_not_unique': 'Назва картки має бути унікальною.\n'
                                'Оберіть іншу назву (без пробілів):',
         'card_added': 'Картку додано.',
@@ -90,6 +96,8 @@ TEXTS = {
         'delete_confirm': 'Видалити картку «{nickname}»?',
         'card_deleted': 'Картку видалено.',
         'error': 'Щось пішло не так. Спробуйте ще раз.',
+        'private_only': 'Я працюю лише в особистих повідомленнях. '
+                        'Відкрийте чат зі мною, щоб керувати картками.',
         'help': 'Card bot зберігає номери ваших карток, щоб їх можна було '
                 'швидко скопіювати.\n\n'
                 '/cards - ваші картки: натисніть на картку, щоб побачити й '

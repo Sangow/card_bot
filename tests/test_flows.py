@@ -394,3 +394,43 @@ def test_mir_rejection_in_ukrainian(harness):
     chat.send('mono')
 
     assert chat.send(MIR_NUMBER)[-1].text == 'Картки «Мир» не підтримуються.'
+
+
+def test_too_long_nickname_is_rejected_when_adding(chat, harness):
+    chat.send('/add')
+
+    replies = chat.send('x' * 33)
+
+    assert replies[-1].text == 'Nickname must be at most 32 characters long:'
+    assert chat.state() == 'AddCard:card_nickname'
+
+    chat.send('x' * 32)
+    chat.send('4242424242424242')
+    assert harness.rows() == [('42', '4242424242424242', 'x' * 32)]
+
+
+def test_too_long_nickname_is_rejected_when_renaming(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+    chat.press('card:rename:1')
+
+    replies = chat.send('x' * 33)
+
+    assert replies[-1].text == 'Nickname must be at most 32 characters long:'
+    assert harness.rows() == [('42', '4242424242424242', 'mono')]
+
+
+def test_longest_nickname_fits_in_card_view(chat):
+    add_card(chat, '378282246310005', 'ж' * 32)
+
+    view = chat.press('card:show:1')[0]
+
+    assert len(view.text) < 4096
+    assert len(chat.press('card:confirm_delete:1')[0].text) < 4096
+
+
+def test_too_long_nickname_in_ukrainian(harness):
+    chat = harness.chat(language_code='uk')
+    chat.send('/add')
+
+    assert chat.send('x' * 33)[-1].text == \
+        'Назва має бути не довшою за 32 символи:'
