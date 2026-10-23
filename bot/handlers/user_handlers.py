@@ -13,6 +13,7 @@ from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
     edit_card_by_id, rename_card_by_id
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
+from .service import card_label
 
 
 async def edit_message(call: CallbackQuery, text: str,
@@ -127,7 +128,9 @@ async def show_cards_handler(call: CallbackQuery, state: FSMContext) -> None:
 
     await state.finish()
 
-    cards = await get_cards(user_id=call.from_user.id)
+    cards = [(card_id, card_label(card_nickname, card_number))
+             for card_id, card_nickname, card_number
+             in await get_cards(user_id=call.from_user.id)]
 
     if not cards:
         await edit_message(call, text=t(lang, 'no_cards'),
