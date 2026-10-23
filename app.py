@@ -31,6 +31,8 @@ async def on_shutdown(_) -> None:
 
 if __name__ == '__main__':
     executor.start_polling(dispatcher=dp,
-                           skip_updates=True,
+                           # Messages sent while the bot was restarting are
+                           # handled once it is up again
+                           skip_updates=False,
                            on_startup=on_startup,
                            on_shutdown=on_shutdown)
