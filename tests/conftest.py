@@ -70,8 +70,10 @@ class Reply:
 
     @property
     def buttons(self) -> list:
-        """Inline buttons as (text, callback_data) pairs, row by row."""
-        return [[(b['text'], b['callback_data']) for b in row]
+        """Inline buttons as (text, callback_data) pairs, row by row; a
+        button that opens inline mode shows as "inline:<query>"."""
+        return [[(b['text'], b.get('callback_data')
+                  or f"inline:{b.get('switch_inline_query')}") for b in row]
                 for row in self.markup.get('inline_keyboard', [])]
 
     @property
