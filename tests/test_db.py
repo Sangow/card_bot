@@ -82,7 +82,8 @@ def test_fresh_database_gets_current_schema(start, db_path, key):
 
     assert user_version(db_path) == sq.SCHEMA_VERSION
     columns = [row[1] for row in raw(db_path, 'PRAGMA table_info(cards)')]
-    assert columns == ['id', 'user_id', 'card_number', 'card_nickname']
+    assert columns == ['id', 'user_id', 'card_number', 'card_nickname',
+                       'favorite']
 
 
 def test_migration_keeps_ids_and_cards(start, db_path, key, old_db):
@@ -205,7 +206,7 @@ def test_version_1_database_gets_states_table(start, db_path, key):
 
     start(key)
 
-    assert user_version(db_path) == 2
+    assert user_version(db_path) == sq.SCHEMA_VERSION
     tables = {name for (name,) in raw(
         db_path, "SELECT name FROM sqlite_master WHERE type='table'")}
     assert {'cards', 'fsm'} <= tables
