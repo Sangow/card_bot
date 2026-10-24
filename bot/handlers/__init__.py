@@ -20,6 +20,7 @@ from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
     add_card_1, add_card_2, add_card_2_fail, add_card_3, add_card_3_fail, \
     add_card_3_not_supported, edit_card_number_not_supported_handler, \
     show_cards_handler, show_card_handler, edit_card_handler, \
+    favorite_handler, unfavorite_handler, \
     edit_card_number_fail_handler, edit_card_number_handler, \
     rename_card_handler, rename_card_fail_handler, rename_card_save_handler, \
     confirm_delete_card_handler, delete_card_handler
@@ -105,6 +106,13 @@ async def register_handlers(dp: Dispatcher) -> None:
                                        state='*')
     dp.register_callback_query_handler(show_card_handler,
                                        card_cb.filter(action='show'),
+                                       state='*')
+
+    dp.register_callback_query_handler(favorite_handler,
+                                       card_cb.filter(action='favorite'),
+                                       state='*')
+    dp.register_callback_query_handler(unfavorite_handler,
+                                       card_cb.filter(action='unfavorite'),
                                        state='*')
 
     dp.register_callback_query_handler(edit_card_handler,
