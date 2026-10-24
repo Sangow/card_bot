@@ -60,13 +60,18 @@ def cards_ikb(cards: list, page: int, pages: int,
 
 
 def card_ikb(card_id: int, card_nickname: str, lang: str,
-             page: int = 0) -> InlineKeyboardMarkup:
+             page: int = 0, favorite: bool = False) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(row_width=2).add(
         # Opens a chat picker with "@bot <nickname>" typed in, which lists
         # just this card to send
         InlineKeyboardButton(text=t(lang, 'btn_share'),
                              switch_inline_query=card_nickname)
-    ).add(
+    ).add(InlineKeyboardButton(
+        text=t(lang, 'btn_unfavorite' if favorite else 'btn_favorite'),
+        callback_data=card_cb.new(
+            action='unfavorite' if favorite else 'favorite',
+            card_id=card_id)
+    )).add(
         InlineKeyboardButton(
             text=t(lang, 'btn_edit_number'),
             callback_data=card_cb.new(action='edit', card_id=card_id)),

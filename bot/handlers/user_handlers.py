@@ -12,7 +12,8 @@ from bot.keyboards import main_ikb, about_ikb, cancel_ikb, cards_ikb, \
     card_ikb, edit_ikb, rename_ikb, delete_confirm_ikb
 from bot.config import MAX_CARDS, HIDE_AFTER
 from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
-    edit_card_by_id, rename_card_by_id, count_cards, nickname_taken
+    edit_card_by_id, rename_card_by_id, count_cards, nickname_taken, \
+    favorite_card_id, set_favorite, unset_favorite
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .hiding import schedule_hide, cancel_hide
@@ -308,7 +309,9 @@ async def cards_list(user_id: int, lang: str,
     page = min(max(page, 0), pages - 1)
     start = page * CARDS_PER_PAGE
 
-    labels = [(card_id, card_label(card_nickname, card_number))
+    favorite = await favorite_card_id(user_id=user_id)
+    labels = [(card_id, card_label(card_nickname, card_number,
+                                   favorite=card_id == favorite))
               for card_id, card_nickname, card_number
               in cards[start:start + CARDS_PER_PAGE]]
 
@@ -361,16 +364,36 @@ async def show_card_handler(call: CallbackQuery,
 
     card_nickname, card_number = card
     page = await card_page(user_id=call.from_user.id, card_id=card_id)
+    favorite = await favorite_card_id(user_id=call.from_user.id) == card_id
 
     await edit_message(
         call,
         text=card_view_text(lang, card_nickname, card_number),
         parse_mode='html',
-        reply_markup=card_ikb(card_id, card_nickname, lang, page)
+        reply_markup=card_ikb(card_id, card_nickname, lang, page, favorite)
     )
     schedule_hide(call.bot, call.message.chat.id, call.message.message_id,
                   card_id, card_nickname, page, lang)
     await call.answer()
+
+
+async def favorite_handler(call: CallbackQuery,
+                           callback_data: dict,
+                           state: FSMContext) -> None:
+    await set_favorite(user_id=call.from_user.id,
+                       card_id=int(callback_data['card_id']))
+
+    # The card view is shown again with the button switched
+    await show_card_handler(call, callback_data, state)
+
+
+async def unfavorite_handler(call: CallbackQuery,
+                             callback_data: dict,
+                             state: FSMContext) -> None:
+    await unset_favorite(user_id=call.from_user.id,
+                         card_id=int(callback_data['card_id']))
+
+    await show_card_handler(call, callback_data, state)
 
 
 async def edit_card_handler(call: CallbackQuery,
@@ -507,12 +530,13 @@ async def rename_card_save_handler(message: Message,
 
     card_nickname, card_number = card
     page = await card_page(user_id=message.from_user.id, card_id=card_id)
+    favorite = await favorite_card_id(user_id=message.from_user.id) == card_id
 
     shown_id = await edit_prompt(
         message, state,
         text=card_view_text(lang, card_nickname, card_number),
         parse_mode='html',
-        reply_markup=card_ikb(card_id, card_nickname, lang, page)
+        reply_markup=card_ikb(card_id, card_nickname, lang, page, favorite)
     )
     schedule_hide(message.bot, message.chat.id, shown_id,
                   card_id, card_nickname, page, lang)

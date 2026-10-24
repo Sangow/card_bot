@@ -58,7 +58,9 @@ TEXTS = {
                 'change it, rename or delete the card\n'
                 '➕ Add card - first a nickname, then the number\n'
                 '📤 Share - send a number to any chat; or type '
-                '@cardnumber_bot in that chat\n\n'
+                '@cardnumber_bot in that chat\n'
+                '⭐ Favorite - you can mark one card as favorite: it comes '
+                'first in the list and when sharing\n\n'
                 '🔒 Numbers are stored encrypted, a shown number is hidden '
                 'after {minutes} min, and messages with numbers are deleted '
                 'from the chat.\n\n'
@@ -70,7 +72,8 @@ TEXTS = {
                        'tap.\n\n'
                        '🔒 Numbers are stored encrypted\n'
                        '👁 A shown number hides itself after a few minutes\n'
-                       '📤 Share a card from any chat: @cardnumber_bot\n\n'
+                       '📤 Share a card from any chat: @cardnumber_bot\n'
+                       '⭐ Your one favorite card always comes first\n\n'
                        'Tap Start to add your first card.',
         'short_description': 'Keep your card numbers and share them in one '
                              'tap. Numbers are stored encrypted.',
@@ -89,6 +92,8 @@ TEXTS = {
         'btn_next_page': 'Next ➡️',
         'btn_show_number': '👁 Show number',
         'btn_share': '📤 Share',
+        'btn_favorite': '⭐ Make favorite',
+        'btn_unfavorite': '☆ Remove from favorites',
         'btn_edit_number': '🔢 Change number',
         'btn_edit_nickname': '🏷 Change nickname',
         'btn_delete': '❌ Delete',
@@ -157,7 +162,9 @@ TEXTS = {
                 'картку\n'
                 '➕ Додати картку - спершу назва, потім номер\n'
                 '📤 Поділитися - надіслати номер у будь-який чат; або '
-                'напишіть у тому чаті @cardnumber_bot\n\n'
+                'напишіть у тому чаті @cardnumber_bot\n'
+                '⭐ Улюблена - одну картку можна позначити улюбленою: вона '
+                'стоїть першою в списку та коли ділитеся\n\n'
                 '🔒 Номери зберігаються зашифрованими, показаний номер '
                 'ховається через {minutes} хв, а повідомлення з номерами '
                 'видаляються з чату.\n\n'
@@ -170,7 +177,8 @@ TEXTS = {
                        '🔒 Номери зберігаються зашифрованими\n'
                        '👁 Показаний номер ховається сам за кілька хвилин\n'
                        '📤 Поділитися карткою можна з будь-якого чату: '
-                       '@cardnumber_bot\n\n'
+                       '@cardnumber_bot\n'
+                       '⭐ Одна улюблена картка завжди перша в списку\n\n'
                        'Натисніть «Почати», щоб додати першу картку.',
         'short_description': 'Зберігайте номери карток і діліться ними в '
                              'один дотик. Номери зберігаються зашифрованими.',
@@ -189,6 +197,8 @@ TEXTS = {
         'btn_next_page': 'Далі ➡️',
         'btn_show_number': '👁 Показати номер',
         'btn_share': '📤 Поділитися',
+        'btn_favorite': '⭐ Зробити улюбленою',
+        'btn_unfavorite': '☆ Прибрати з улюблених',
         'btn_edit_number': '🔢 Змінити номер',
         'btn_edit_nickname': '🏷 Змінити назву',
         'btn_delete': '❌ Видалити',

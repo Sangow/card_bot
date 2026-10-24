@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 # 1: cards have their own id and encrypted card numbers
 # 2: conversation states are kept in the database
-SCHEMA_VERSION = 2
+# 3: a user can mark one card as favorite
+SCHEMA_VERSION = 3
 
 # AUTOINCREMENT never reuses the id of a deleted card, so buttons left in
 # old messages cannot open a card added later
@@ -104,6 +105,16 @@ def migrate_to_2() -> None:
         cur.execute('PRAGMA user_version = 2')
 
 
+def migrate_to_3() -> None:
+    with transaction():
+        cur.execute('ALTER TABLE cards '
+                    'ADD COLUMN favorite INTEGER NOT NULL DEFAULT 0')
+        # The database itself keeps it to one favorite card per user
+        cur.execute('CREATE UNIQUE INDEX one_favorite_per_user '
+                    'ON cards (user_id) WHERE favorite = 1')
+        cur.execute('PRAGMA user_version = 3')
+
+
 def migrate() -> None:
     version = cur.execute('PRAGMA user_version').fetchone()[0]
 
@@ -111,6 +122,8 @@ def migrate() -> None:
         migrate_to_1()
     if version < 2:
         migrate_to_2()
+    if version < 3:
+        migrate_to_3()
 
 
 def check_key() -> None:
@@ -157,7 +170,7 @@ async def get_cards(user_id: str) -> list:
         'SELECT id, card_nickname, card_number '
         'FROM cards '
         'WHERE user_id=(?) '
-        'ORDER BY id',
+        'ORDER BY favorite DESC, id',
         (user_id,)
     ).fetchall()
 
@@ -251,3 +264,31 @@ async def stats() -> dict:
 
     return {'users': users, 'cards': cards, 'most': most or 0,
             'dialogs': dialogs}
+
+
+async def favorite_card_id(user_id: str) -> int | None:
+    row = cur.execute(
+        'SELECT id FROM cards WHERE user_id=(?) AND favorite=1',
+        (user_id,)
+    ).fetchone()
+
+    return row[0] if row else None
+
+
+async def set_favorite(user_id: str, card_id: int) -> None:
+    # One transaction, so the user never ends up with two favorites or a
+    # moment without the old one being cleared
+    with transaction():
+        cur.execute('UPDATE cards SET favorite=0 WHERE user_id=(?)',
+                    (user_id,))
+        cur.execute('UPDATE cards SET favorite=1 '
+                    'WHERE user_id=(?) AND id=(?)',
+                    (user_id, card_id))
+
+
+async def unset_favorite(user_id: str, card_id: int) -> None:
+    cur.execute(
+        'UPDATE cards SET favorite=0 WHERE user_id=(?) AND id=(?)',
+        (user_id, card_id)
+    )
+    db.commit()

@@ -57,7 +57,8 @@ async def not_understood_handler(message: Message) -> None:
 # What real card buttons look like. Ids are capped in length, as SQLite
 # rejects integers past 64 bits
 VALID_CARD_BUTTON = re.compile(
-    r'card:(show|edit|rename|confirm_delete|delete):\d{1,18}|cards:\d{1,9}'
+    r'card:(show|edit|rename|confirm_delete|delete|favorite|unfavorite):'
+    r'\d{1,18}|cards:\d{1,9}'
 )
 
 
