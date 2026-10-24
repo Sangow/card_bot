@@ -70,8 +70,11 @@ def card_icon(card_number: str) -> str:
     return BRAND_ICONS.get(card_brand(card_number), 'unknown')
 
 
-def card_label(card_nickname: str, card_number: str) -> str:
+def card_label(card_nickname: str, card_number: str,
+               favorite: bool = False) -> str:
     label = f'{card_nickname} •••• {card_number[-4:]}'
+    if favorite:
+        label = f'⭐ {label}'
     brand = card_brand(card_number)
 
     return f'{label} · {brand}' if brand else label

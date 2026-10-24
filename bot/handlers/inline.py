@@ -2,20 +2,20 @@ from aiogram.types import InlineQuery, InlineQueryResultArticle, \
     InputTextMessageContent
 
 from bot.config import CARD_ICONS_URL
-from bot.sql import get_cards
+from bot.sql import get_cards, favorite_card_id
 from bot.texts import t, get_lang
 from .service import card_label, card_icon, format_card_number
 
 ICON_SIZE = 192
 
 
-def card_result(card_id: int, card_nickname: str,
-                card_number: str) -> InlineQueryResultArticle:
+def card_result(card_id: int, card_nickname: str, card_number: str,
+                favorite: bool) -> InlineQueryResultArticle:
     icon = f'{CARD_ICONS_URL}/{card_icon(card_number)}.png'
     result = InlineQueryResultArticle(
         id=str(card_id),
         # The title is seen only by the user; the chat gets the number
-        title=card_label(card_nickname, card_number),
+        title=card_label(card_nickname, card_number, favorite=favorite),
         input_message_content=InputTextMessageContent(
             message_text=f'💳 <code>{format_card_number(card_number)}</code>',
             parse_mode='html'
@@ -36,7 +36,9 @@ async def inline_cards_handler(query: InlineQuery) -> None:
     lang = get_lang(query.from_user)
     wanted = query.query.strip().casefold()
 
+    # The favorite card comes first, as get_cards orders them
     cards = await get_cards(user_id=query.from_user.id)
+    favorite = await favorite_card_id(user_id=query.from_user.id)
 
     # Nicknames are unique per user, so an exact match means that one card:
     # the Share button relies on it to offer just the card it was pressed on
@@ -45,7 +47,8 @@ async def inline_cards_handler(query: InlineQuery) -> None:
         cards = exact
 
     results = [
-        card_result(card_id, card_nickname, card_number)
+        card_result(card_id, card_nickname, card_number,
+                    favorite=card_id == favorite)
         for card_id, card_nickname, card_number in cards
         if wanted in card_nickname.casefold()
     ]
