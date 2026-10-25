@@ -283,6 +283,12 @@ async def set_favorite(user_id: str, card_id: int) -> None:
     # One transaction, so the user never ends up with two favorites or a
     # moment without the old one being cleared
     with transaction():
+        # A deleted or someone else's card must not take the favorite away
+        # from the current one
+        if cur.execute('SELECT 1 FROM cards WHERE user_id=(?) AND id=(?)',
+                       (user_id, card_id)).fetchone() is None:
+            return
+
         cur.execute('UPDATE cards SET favorite=0 WHERE user_id=(?)',
                     (user_id,))
         cur.execute('UPDATE cards SET favorite=1 '
