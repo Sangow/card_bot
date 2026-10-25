@@ -10,6 +10,10 @@ from bot.handlers.service import validate_card_number, \
     '5555555555554444',
     '378282246310005',
     '4222222222222',
+    '67596498264384533',    # 17 digits
+    '501800000000000009',   # 18 digits
+    '6212345678901234569',  # 19 digits
+    '6212 3456 7890 1234 569',
 ])
 def test_valid_card_numbers(card_number):
     assert validate_card_number(card_number)
@@ -19,6 +23,7 @@ def test_valid_card_numbers(card_number):
     '4242424242424241',     # wrong checksum
     '424242424242',         # too short
     '42424242424242424242',  # too long
+    '6212345678901234568',  # 19 digits, wrong checksum
     '4242abcd42424242',     # letters
     '',
 ])
@@ -64,6 +69,7 @@ def test_card_label_without_brand():
     ('4242424242424242', '4242 4242 4242 4242'),
     ('378282246310005', '3782 822463 10005'),
     ('4222222222222', '4222 2222 2222 2'),
+    ('6212345678901234569', '6212 3456 7890 1234 569'),
 ])
 def test_format_card_number(card_number, formatted):
     assert format_card_number(card_number) == formatted

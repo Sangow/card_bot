@@ -28,6 +28,15 @@ def test_add_card(chat, harness):
     assert harness.rows() == [('42', '4242424242424242', 'mono')]
 
 
+def test_add_card_with_19_digit_number(chat, harness):
+    chat.send('/add')
+    chat.send('union')
+    replies = chat.send('6212 3456 7890 1234 569')
+
+    assert replies[-1].text == 'Card added.'
+    assert harness.rows() == [('42', '6212345678901234569', 'union')]
+
+
 def test_add_card_rejects_invalid_number(chat, harness):
     chat.send('/add')
     chat.send('mono')
@@ -132,6 +141,16 @@ def test_edit_card_number(chat, harness):
 
     assert replies[-1].text == 'Information saved.'
     assert harness.rows() == [('42', '5555555555554444', 'mono')]
+
+
+def test_edit_card_number_to_19_digits(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+
+    chat.press('card:edit:1')
+    replies = chat.send('6212345678901234569')
+
+    assert replies[-1].text == 'Information saved.'
+    assert harness.rows() == [('42', '6212345678901234569', 'mono')]
 
 
 def test_edit_leave_previous_keeps_number(chat, harness):
