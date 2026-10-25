@@ -112,6 +112,31 @@ def test_other_users_card_cannot_be_made_favorite(harness):
                                              'b •••• 4242 · Visa']
 
 
+def test_deleted_card_does_not_take_the_favorite_away(chat):
+    add_cards(chat, ['a', 'b'])
+    chat.press('card:favorite:1')
+    chat.press('card:delete:2')
+
+    # The Make favorite button left in an old message of the deleted card
+    replies = chat.press('card:favorite:2')
+
+    assert replies[0].text == 'Card not found.'
+    assert list_labels(chat) == ['⭐ a •••• 4242 · Visa']
+
+
+def test_other_users_card_does_not_take_the_favorite_away(harness):
+    owner = harness.chat(user_id=1)
+    stranger = harness.chat(user_id=2)
+    add_cards(owner, ['a'])
+    add_cards(stranger, ['b'])
+    stranger.press('card:favorite:2')
+
+    stranger.press('card:favorite:1')
+
+    assert list_labels(stranger) == ['⭐ b •••• 4242 · Visa']
+    assert list_labels(owner) == ['a •••• 4242 · Visa']
+
+
 def test_database_allows_only_one_favorite_per_user(chat):
     add_cards(chat, ['a', 'b'])
     chat.press('card:favorite:1')

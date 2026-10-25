@@ -1,7 +1,8 @@
 import pytest
 
 from bot.handlers.service import validate_card_number, \
-    validate_card_nickname, card_brand, card_label, format_card_number
+    validate_card_nickname, card_brand, card_label, format_card_number, \
+    normalize_card_number, is_mir_card
 
 
 @pytest.mark.parametrize('card_number', [
@@ -10,6 +11,14 @@ from bot.handlers.service import validate_card_number, \
     '5555555555554444',
     '378282246310005',
     '4222222222222',
+    '67596498264384533',    # 17 digits
+    '501800000000000009',   # 18 digits
+    '6212345678901234569',  # 19 digits
+    '6212 3456 7890 1234 569',
+    '4242-4242-4242-4242',
+    '4242\u00a04242\u00a04242\u00a04242',  # non-breaking spaces
+    '4242\u202f4242\u202f4242\u202f4242',  # narrow non-breaking spaces
+    ' 4242 4242 4242 4242\n',
 ])
 def test_valid_card_numbers(card_number):
     assert validate_card_number(card_number)
@@ -19,11 +28,35 @@ def test_valid_card_numbers(card_number):
     '4242424242424241',     # wrong checksum
     '424242424242',         # too short
     '42424242424242424242',  # too long
+    '6212345678901234568',  # 19 digits, wrong checksum
     '4242abcd42424242',     # letters
+    '4242.4242.4242.4242',  # dots are not separators
+    '4242-4242-4242-4241',  # wrong checksum with dashes
     '',
 ])
 def test_invalid_card_numbers(card_number):
     assert not validate_card_number(card_number)
+
+
+@pytest.mark.parametrize('card_number', [
+    '4242424242424242',
+    '4242 4242 4242 4242',
+    '4242-4242-4242-4242',
+    '4242 - 4242 - 4242 - 4242',
+    '4242\u00a04242\u202f4242\t4242',
+])
+def test_normalize_card_number(card_number):
+    assert normalize_card_number(card_number) == '4242424242424242'
+
+
+@pytest.mark.parametrize('card_number', [
+    '2200000000000004',
+    '2200 0000 0000 0004',
+    '2200-0000-0000-0004',
+    '2200\u00a00000\u00a00000\u00a00004',
+])
+def test_mir_card_with_any_separators(card_number):
+    assert is_mir_card(card_number)
 
 
 @pytest.mark.parametrize('card_nickname', ['mono', 'privat&co', 'Моно'])
@@ -64,6 +97,7 @@ def test_card_label_without_brand():
     ('4242424242424242', '4242 4242 4242 4242'),
     ('378282246310005', '3782 822463 10005'),
     ('4222222222222', '4222 2222 2222 2'),
+    ('6212345678901234569', '6212 3456 7890 1234 569'),
 ])
 def test_format_card_number(card_number, formatted):
     assert format_card_number(card_number) == formatted

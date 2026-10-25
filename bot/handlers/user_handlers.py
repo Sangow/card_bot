@@ -18,7 +18,7 @@ from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .hiding import schedule_hide, cancel_hide
 from .service import card_label, format_card_number, nickname_too_long, \
-    MAX_NICKNAME_LENGTH
+    normalize_card_number, MAX_NICKNAME_LENGTH
 
 CARDS_PER_PAGE = 5
 
@@ -283,7 +283,7 @@ async def add_card_3(message: Message, state: FSMContext) -> None:
 
     try:
         await add_card(user_id=message.from_user.id,
-                       card_number=message.text.replace(' ', ''),
+                       card_number=normalize_card_number(message.text),
                        card_nickname=card_nickname)
     except IntegrityError:
         # Another card got this nickname while the number was being entered
@@ -403,6 +403,11 @@ async def edit_card_handler(call: CallbackQuery,
 
     card_id = int(callback_data['card_id'])
 
+    # The button may be left in an old message after the card was deleted
+    if await get_card(user_id=call.from_user.id, card_id=card_id) is None:
+        await call.answer(text=t(lang, 'card_not_found'), show_alert=True)
+        return
+
     await edit_message(call, text=t(lang, 'enter_new_card_number'),
                        reply_markup=edit_ikb(card_id, lang))
 
@@ -449,11 +454,19 @@ async def edit_card_number_handler(
     async with state.proxy() as data:
         card_id = data['card_id']
 
-    await edit_card_by_id(user_id=message.from_user.id,
-                          card_id=card_id,
-                          new_card_number=message.text.replace(' ', ''))
+    saved = await edit_card_by_id(
+        user_id=message.from_user.id,
+        card_id=card_id,
+        new_card_number=normalize_card_number(message.text))
 
     await delete_user_message(message)
+
+    # The card may have been deleted while the new number was being entered
+    if not saved:
+        await edit_prompt(message, state, text=t(lang, 'card_not_found'),
+                          reply_markup=main_ikb(lang))
+        await state.finish()
+        return
 
     await edit_prompt(message, state, text=t(lang, 'info_saved'),
                       reply_markup=main_ikb(lang))
@@ -466,6 +479,11 @@ async def rename_card_handler(call: CallbackQuery,
     lang = get_lang(call.from_user)
 
     card_id = int(callback_data['card_id'])
+
+    # The button may be left in an old message after the card was deleted
+    if await get_card(user_id=call.from_user.id, card_id=card_id) is None:
+        await call.answer(text=t(lang, 'card_not_found'), show_alert=True)
+        return
 
     await edit_message(call, text=t(lang, 'enter_new_nickname'),
                        reply_markup=rename_ikb(card_id, lang))

@@ -1,10 +1,23 @@
 import re
 
 
-def validate_card_number(card_number: str) -> bool:
-    cn_no_spaces = card_number.replace(' ', '')
+# Card numbers are 13 to 19 digits long (ISO/IEC 7812); some Maestro,
+# UnionPay and Visa cards have more than 16
+MIN_CARD_NUMBER_LENGTH = 13
+MAX_CARD_NUMBER_LENGTH = 19
 
-    if len(cn_no_spaces) < 13 or len(cn_no_spaces) > 16 or \
+
+def normalize_card_number(card_number: str) -> str:
+    # Copied numbers come with dashes or non-breaking spaces as well as
+    # plain spaces between the digit groups
+    return re.sub(r'[\s-]', '', card_number)
+
+
+def validate_card_number(card_number: str) -> bool:
+    cn_no_spaces = normalize_card_number(card_number)
+
+    if len(cn_no_spaces) < MIN_CARD_NUMBER_LENGTH or \
+            len(cn_no_spaces) > MAX_CARD_NUMBER_LENGTH or \
             not cn_no_spaces.isdigit():
         return False
 
@@ -95,7 +108,7 @@ MIR_PREFIXES = ('2200', '2201', '2202', '2203', '2204')
 
 
 def is_mir_card(card_number: str) -> bool:
-    return card_number.replace(' ', '').startswith(MIR_PREFIXES)
+    return normalize_card_number(card_number).startswith(MIR_PREFIXES)
 
 
 def looks_like_card_number(text: str) -> bool:

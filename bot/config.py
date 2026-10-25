@@ -15,6 +15,12 @@ ADMIN_CHAT_ID = int(getenv('ADMIN_CHAT_ID')) if getenv('ADMIN_CHAT_ID') \
 STARTUP_ALERT = getenv('STARTUP_ALERT', '1') != '0'
 # Time zone of the times in alerts
 ALERT_TIMEZONE = getenv('ALERT_TIMEZONE', 'Europe/Kyiv')
+# URL of a monitoring service (e.g. Healthchecks.io) that the bot pings
+# while it is alive, so the service alerts when the pings stop; no pings
+# when unset
+HEARTBEAT_URL = getenv('HEARTBEAT_URL')
+# Seconds between the pings
+HEARTBEAT_INTERVAL = int(getenv('HEARTBEAT_INTERVAL', '300'))
 # Seconds after which a shown card number is hidden again
 HIDE_AFTER = int(getenv('HIDE_AFTER', '120'))
 # Where Telegram fetches the card icons shown in inline mode: the repo's

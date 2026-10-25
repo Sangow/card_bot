@@ -28,6 +28,29 @@ def test_add_card(chat, harness):
     assert harness.rows() == [('42', '4242424242424242', 'mono')]
 
 
+def test_add_card_with_19_digit_number(chat, harness):
+    chat.send('/add')
+    chat.send('union')
+    replies = chat.send('6212 3456 7890 1234 569')
+
+    assert replies[-1].text == 'Card added.'
+    assert harness.rows() == [('42', '6212345678901234569', 'union')]
+
+
+@pytest.mark.parametrize('card_number', [
+    '4242-4242-4242-4242',
+    '4242\u00a04242\u00a04242\u00a04242',
+])
+def test_add_card_with_separators_saves_only_digits(chat, harness,
+                                                    card_number):
+    chat.send('/add')
+    chat.send('mono')
+    replies = chat.send(card_number)
+
+    assert replies[-1].text == 'Card added.'
+    assert harness.rows() == [('42', '4242424242424242', 'mono')]
+
+
 def test_add_card_rejects_invalid_number(chat, harness):
     chat.send('/add')
     chat.send('mono')
@@ -134,6 +157,26 @@ def test_edit_card_number(chat, harness):
     assert harness.rows() == [('42', '5555555555554444', 'mono')]
 
 
+def test_edit_card_number_to_19_digits(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+
+    chat.press('card:edit:1')
+    replies = chat.send('6212345678901234569')
+
+    assert replies[-1].text == 'Information saved.'
+    assert harness.rows() == [('42', '6212345678901234569', 'mono')]
+
+
+def test_edit_card_number_with_dashes_saves_only_digits(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+
+    chat.press('card:edit:1')
+    replies = chat.send('5555-5555-5555-4444')
+
+    assert replies[-1].text == 'Information saved.'
+    assert harness.rows() == [('42', '5555555555554444', 'mono')]
+
+
 def test_edit_leave_previous_keeps_number(chat, harness):
     add_card(chat, '4242424242424242', 'mono')
 
@@ -157,6 +200,29 @@ def test_rename_card(chat, harness):
     assert 'black' in replies[-1].text
     assert chat.state() is None
     assert ('42', '4242424242424242', 'black') in harness.rows()
+
+
+def test_rename_button_of_deleted_card(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+    chat.press('card:delete:1')
+
+    # The Rename button left in an old message of the deleted card
+    replies = chat.press('card:rename:1')
+
+    assert [r.method for r in replies] == ['answerCallbackQuery']
+    assert replies[0].text == 'Card not found.'
+    assert chat.state() is None
+
+
+def test_other_users_card_cannot_be_renamed(harness):
+    owner = harness.chat(user_id=1)
+    stranger = harness.chat(user_id=2)
+    add_card(owner, '4242424242424242', 'mono')
+
+    replies = stranger.press('card:rename:1')
+
+    assert replies[0].text == 'Card not found.'
+    assert stranger.state() is None
 
 
 def test_delete_asks_for_confirmation(chat, harness):
@@ -391,6 +457,16 @@ def test_card_number_cannot_be_changed_to_mir(chat, harness):
     assert replies[-1].text == 'Mir cards are not supported.'
     assert chat.state() == 'ShowCard:edit_card_number'
     assert harness.rows() == [('42', '4242424242424242', 'mono')]
+
+
+def test_mir_card_with_dashes_cannot_be_added(chat, harness):
+    chat.send('/add')
+    chat.send('mono')
+
+    replies = chat.send('2200-0000-0000-0004')
+
+    assert replies[-1].text == 'Mir cards are not supported.'
+    assert harness.rows() == []
 
 
 def test_mir_rejection_in_ukrainian(harness):

@@ -206,14 +206,18 @@ async def delete_card_by_id(user_id: str, card_id: int) -> None:
 async def edit_card_by_id(
         user_id: str,
         card_id: int,
-        new_card_number: str) -> None:
+        new_card_number: str) -> bool:
+    """Returns False when the user has no such card."""
     cur.execute(
         'UPDATE cards '
         'SET card_number=(?) '
         'WHERE user_id=(?) AND id=(?)',
         (encrypt(new_card_number), user_id, card_id)
     )
+    saved = cur.rowcount > 0
     db.commit()
+
+    return saved
 
 
 async def rename_card_by_id(
@@ -279,6 +283,12 @@ async def set_favorite(user_id: str, card_id: int) -> None:
     # One transaction, so the user never ends up with two favorites or a
     # moment without the old one being cleared
     with transaction():
+        # A deleted or someone else's card must not take the favorite away
+        # from the current one
+        if cur.execute('SELECT 1 FROM cards WHERE user_id=(?) AND id=(?)',
+                       (user_id, card_id)).fetchone() is None:
+            return
+
         cur.execute('UPDATE cards SET favorite=0 WHERE user_id=(?)',
                     (user_id,))
         cur.execute('UPDATE cards SET favorite=1 '

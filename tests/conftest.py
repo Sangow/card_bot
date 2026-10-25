@@ -151,6 +151,9 @@ def harness(tmp_path, monkeypatch):
                     'chat': {'id': data.get('chat_id', 1),
                              'type': 'private'},
                     'text': data.get('text', '')}
+        if method == 'getMe':
+            return {'id': 123456, 'is_bot': True, 'first_name': 'Card bot',
+                    'username': 'cardnumber_bot'}
         return True
 
     monkeypatch.setattr(Bot, 'request', fake_request)
