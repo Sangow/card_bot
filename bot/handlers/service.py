@@ -1,10 +1,17 @@
 import re
 
 
+# Card numbers are 13 to 19 digits long (ISO/IEC 7812); some Maestro,
+# UnionPay and Visa cards have more than 16
+MIN_CARD_NUMBER_LENGTH = 13
+MAX_CARD_NUMBER_LENGTH = 19
+
+
 def validate_card_number(card_number: str) -> bool:
     cn_no_spaces = card_number.replace(' ', '')
 
-    if len(cn_no_spaces) < 13 or len(cn_no_spaces) > 16 or \
+    if len(cn_no_spaces) < MIN_CARD_NUMBER_LENGTH or \
+            len(cn_no_spaces) > MAX_CARD_NUMBER_LENGTH or \
             not cn_no_spaces.isdigit():
         return False
 
