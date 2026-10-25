@@ -403,6 +403,11 @@ async def edit_card_handler(call: CallbackQuery,
 
     card_id = int(callback_data['card_id'])
 
+    # The button may be left in an old message after the card was deleted
+    if await get_card(user_id=call.from_user.id, card_id=card_id) is None:
+        await call.answer(text=t(lang, 'card_not_found'), show_alert=True)
+        return
+
     await edit_message(call, text=t(lang, 'enter_new_card_number'),
                        reply_markup=edit_ikb(card_id, lang))
 
@@ -449,11 +454,19 @@ async def edit_card_number_handler(
     async with state.proxy() as data:
         card_id = data['card_id']
 
-    await edit_card_by_id(user_id=message.from_user.id,
-                          card_id=card_id,
-                          new_card_number=message.text.replace(' ', ''))
+    saved = await edit_card_by_id(
+        user_id=message.from_user.id,
+        card_id=card_id,
+        new_card_number=message.text.replace(' ', ''))
 
     await delete_user_message(message)
+
+    # The card may have been deleted while the new number was being entered
+    if not saved:
+        await edit_prompt(message, state, text=t(lang, 'card_not_found'),
+                          reply_markup=main_ikb(lang))
+        await state.finish()
+        return
 
     await edit_prompt(message, state, text=t(lang, 'info_saved'),
                       reply_markup=main_ikb(lang))
