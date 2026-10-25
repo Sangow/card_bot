@@ -13,6 +13,7 @@ from .fallback import non_text_in_dialog_handler, \
     NICKNAME_STATES, NUMBER_STATES
 from .private_only import not_private, group_message_handler, \
     group_callback_handler
+from .throttling import ThrottlingMiddleware
 from .service import validate_card_number, validate_card_nickname, \
     is_mir_card, looks_like_card_number
 from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
@@ -27,6 +28,8 @@ from .user_handlers import cmd_start, cmd_cancel, cmd_cards, cmd_add, \
 
 
 async def register_handlers(dp: Dispatcher) -> None:
+    dp.middleware.setup(ThrottlingMiddleware())
+
     # Registered first, so nothing else runs outside private chats
     dp.register_message_handler(group_message_handler,
                                 not_private,

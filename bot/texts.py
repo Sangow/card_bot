@@ -52,6 +52,7 @@ TEXTS = {
         'send_number_as_text': 'Send the card number as text:',
         'private_only': 'I only work in private messages. '
                         'Open a chat with me to manage your cards.',
+        'too_many_actions': 'Too many actions. Please wait a few seconds.',
         'help': 'Card bot keeps your card numbers so you can copy or send '
                 'them in one tap.\n\n'
                 '💳 My cards - tap a card to see and copy its number, '
@@ -155,6 +156,7 @@ TEXTS = {
         'send_number_as_text': 'Надішліть номер картки текстом:',
         'private_only': 'Я працюю лише в особистих повідомленнях. '
                         'Відкрийте чат зі мною, щоб керувати картками.',
+        'too_many_actions': 'Забагато дій. Зачекайте кілька секунд.',
         'help': 'Card bot зберігає номери ваших карток, щоб їх можна було '
                 'скопіювати чи надіслати в один дотик.\n\n'
                 '💳 Мої картки - натисніть на картку, щоб побачити й '

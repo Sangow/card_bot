@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, types
 from cryptography.fernet import Fernet
 
 import bot.handlers.hiding as hiding
+import bot.handlers.throttling as throttling
 import bot.sql.sq as sq
 from bot import prepare_all, shutdown_all
 from bot.sql.storage import SQLiteStorage
@@ -137,6 +138,9 @@ class Harness:
 def harness(tmp_path, monkeypatch):
     monkeypatch.setattr(sq, 'DB_PATH', str(tmp_path / 'db.db'))
     monkeypatch.setattr(sq, 'CARD_KEY', Fernet.generate_key().decode())
+    # Tests send updates far faster than a person; test_throttling turns
+    # the limit back on
+    monkeypatch.setattr(throttling, 'RATE_LIMIT', 10 ** 6)
 
     h = Harness()
 
