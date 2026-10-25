@@ -4,12 +4,22 @@ import sqlite3
 import pytest
 
 import bot.sql.sq as sq
+from bot.handlers.service import validate_card_number
 from conftest import add_card
 
 
+def card_number(n: int) -> str:
+    """A different valid Visa number for each n, all ending in 4242."""
+    for digit in '0123456789':
+        number = f'40000{n:06d}{digit}4242'
+        if validate_card_number(number):
+            return number
+
+
 def add_cards(chat, nicknames) -> None:
-    for nickname in nicknames:
-        add_card(chat, '4242424242424242', nickname)
+    # Each card gets its own number, as a number can be saved only once
+    for n, nickname in enumerate(nicknames):
+        add_card(chat, card_number(n), nickname)
 
 
 def list_labels(chat) -> list:
