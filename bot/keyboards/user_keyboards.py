@@ -104,6 +104,26 @@ def edit_ikb(card_id: int, lang: str) -> InlineKeyboardMarkup:
     ))
 
 
+def number_taken_ikb(card_id: int, card_nickname: str, lang: str,
+                     editing_card_id: int | None = None
+                     ) -> InlineKeyboardMarkup:
+    # Opens the card that already has the number; the second button leaves
+    # the input the same way the flow's own button does
+    ikm = InlineKeyboardMarkup().add(InlineKeyboardButton(
+        text=t(lang, 'btn_open_card', nickname=card_nickname),
+        callback_data=card_cb.new(action='show', card_id=card_id)
+    ))
+
+    if editing_card_id is None:
+        return ikm.add(InlineKeyboardButton(
+            text=t(lang, 'btn_cancel'),
+            callback_data=nav_cb.new(to='main')))
+
+    return ikm.add(InlineKeyboardButton(
+        text=t(lang, 'btn_leave_previous'),
+        callback_data=card_cb.new(action='show', card_id=editing_card_id)))
+
+
 def rename_ikb(card_id: int, lang: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup().add(InlineKeyboardButton(
         text=t(lang, 'btn_leave_previous_nickname'),

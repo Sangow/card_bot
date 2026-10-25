@@ -3,6 +3,7 @@ import pytest
 import bot.handlers.hiding as hiding
 from bot import shutdown_all
 from conftest import Reply, add_card
+from test_flows import luhn_number
 
 HIDE_AFTER = 0.2
 
@@ -54,8 +55,7 @@ def test_showing_again_restarts_the_timer(chat):
 
 def test_hidden_view_returns_to_the_cards_page(chat):
     for n in range(6):
-        add_card(chat, ('4242424242424242', '5555555555554444')[n % 2],
-                 f'card{n}')
+        add_card(chat, luhn_number(n), f'card{n}')
     chat.press('card:show:6')
 
     hidden, = edits(chat.harness.wait(HIDE_AFTER * 2))

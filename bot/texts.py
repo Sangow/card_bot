@@ -15,6 +15,8 @@ TEXTS = {
                              'characters long:',
         'nickname_not_unique': 'Nickname of your card should be unique.\n'
                                'Choose another nickname (without spaces):',
+        'number_taken': 'This number is already saved as «{nickname}».\n'
+                        'Enter another card number:',
         'card_added': 'Card added.',
         'cards_limit': 'You can keep up to {limit} cards.\n'
                        'Delete one to add a new one.',
@@ -52,6 +54,7 @@ TEXTS = {
         'send_number_as_text': 'Send the card number as text:',
         'private_only': 'I only work in private messages. '
                         'Open a chat with me to manage your cards.',
+        'too_many_actions': 'Too many actions. Please wait a few seconds.',
         'help': 'Card bot keeps your card numbers so you can copy or send '
                 'them in one tap.\n\n'
                 '💳 My cards - tap a card to see and copy its number, '
@@ -98,6 +101,7 @@ TEXTS = {
         'btn_edit_nickname': '🏷 Change nickname',
         'btn_delete': '❌ Delete',
         'btn_leave_previous': '↩️ Leave previous',
+        'btn_open_card': '💳 Open «{nickname}»',
         'btn_leave_previous_nickname': '↩️ Leave previous',
         'btn_yes_delete': '✅ Yes, delete',
         'btn_no': '↩️ No',
@@ -117,6 +121,8 @@ TEXTS = {
                              'символи:',
         'nickname_not_unique': 'Назва картки має бути унікальною.\n'
                                'Оберіть іншу назву (без пробілів):',
+        'number_taken': 'Цей номер уже збережено як «{nickname}».\n'
+                        'Введіть інший номер картки:',
         'card_added': 'Картку додано.',
         'cards_limit': 'Можна зберегти не більше {limit} карток.\n'
                        'Видаліть одну, щоб додати нову.',
@@ -155,6 +161,7 @@ TEXTS = {
         'send_number_as_text': 'Надішліть номер картки текстом:',
         'private_only': 'Я працюю лише в особистих повідомленнях. '
                         'Відкрийте чат зі мною, щоб керувати картками.',
+        'too_many_actions': 'Забагато дій. Зачекайте кілька секунд.',
         'help': 'Card bot зберігає номери ваших карток, щоб їх можна було '
                 'скопіювати чи надіслати в один дотик.\n\n'
                 '💳 Мої картки - натисніть на картку, щоб побачити й '
@@ -203,6 +210,7 @@ TEXTS = {
         'btn_edit_nickname': '🏷 Змінити назву',
         'btn_delete': '❌ Видалити',
         'btn_leave_previous': '↩️ Залишити попередній',
+        'btn_open_card': '💳 Відкрити «{nickname}»',
         'btn_leave_previous_nickname': '↩️ Залишити попередню',
         'btn_yes_delete': '✅ Так, видалити',
         'btn_no': '↩️ Ні',

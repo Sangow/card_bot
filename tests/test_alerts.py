@@ -109,6 +109,52 @@ def test_failed_alert_does_not_break_error_handling(chat, broken_list,
 
 
 
+@pytest.fixture
+def flooded(monkeypatch):
+    """Telegram asks the bot to wait, a different time on each call."""
+    from aiogram.utils.exceptions import RetryAfter
+
+    waits = iter(range(5, 100))
+
+    async def flood(**kwargs):
+        raise RetryAfter(next(waits))
+
+    monkeypatch.setattr(user_handlers, 'get_cards', flood)
+
+
+def test_flood_error_gets_no_reply_to_user(chat, flooded):
+    replies = chat.press('nav:cards')
+
+    alert, = alerts_in(replies)
+    assert 'RetryAfter: Flood control exceeded' in alert.text
+    # A reply would only hit Telegram's limit again
+    assert [r.method for r in replies] == ['sendMessage']
+
+
+def test_flood_error_in_message_gets_no_reply_to_user(chat, flooded):
+    replies = chat.send('/cards')
+
+    assert [r for r in replies
+            if r.method == 'sendMessage' and r not in alerts_in(replies)] == []
+
+
+def test_flood_errors_with_different_waits_are_one_alert(chat, flooded,
+                                                         monkeypatch):
+    now = [1000.0]
+    monkeypatch.setattr(error_handlers, 'monotonic', lambda: now[0])
+
+    assert len(alerts_in(chat.press('nav:cards'))) == 1
+    for _ in range(3):
+        now[0] += 60
+        assert alerts_in(chat.press('nav:cards')) == []
+
+    now[0] += error_handlers.ALERT_INTERVAL
+    alert, = alerts_in(chat.press('nav:cards'))
+    assert 'Повторилася ще 3 раз(ів)' in alert.text
+    assert 'seconds' not in alert.text
+
+
+
 def admin_messages(harness) -> list:
     return [Reply(method, data) for method, data in harness.calls
             if method == 'sendMessage' and data.get('chat_id') == ADMIN]

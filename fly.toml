@@ -6,7 +6,9 @@
 app = "card-bot"
 primary_region = "arn"
 kill_signal = "SIGINT"
-kill_timeout = "5s"
+# Before stopping, the bot hides every card number it is showing, one
+# Telegram request each; Fly waits only as long as that takes
+kill_timeout = "30s"
 
 [build]
   dockerfile = "Dockerfile"

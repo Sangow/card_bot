@@ -9,11 +9,11 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, \
 from aiogram.utils.exceptions import MessageNotModified, TelegramAPIError
 
 from bot.keyboards import main_ikb, about_ikb, cancel_ikb, cards_ikb, \
-    card_ikb, edit_ikb, rename_ikb, delete_confirm_ikb
+    card_ikb, edit_ikb, rename_ikb, delete_confirm_ikb, number_taken_ikb
 from bot.config import MAX_CARDS, HIDE_AFTER
 from bot.sql import add_card, get_cards, get_card, delete_card_by_id, \
     edit_card_by_id, rename_card_by_id, count_cards, nickname_taken, \
-    favorite_card_id, set_favorite, unset_favorite
+    favorite_card_id, set_favorite, unset_favorite, card_with_number
 from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .hiding import schedule_hide, cancel_hide
@@ -278,12 +278,27 @@ async def add_card_3(message: Message, state: FSMContext) -> None:
         await state.finish()
         return
 
+    card_number = normalize_card_number(message.text)
+
+    # The user stays on this step to enter another number
+    duplicate = await card_with_number(user_id=message.from_user.id,
+                                       card_number=card_number)
+    if duplicate:
+        duplicate_id, duplicate_nickname = duplicate
+        await edit_prompt(message, state,
+                          text=t(lang, 'number_taken',
+                                 nickname=duplicate_nickname),
+                          reply_markup=number_taken_ikb(duplicate_id,
+                                                        duplicate_nickname,
+                                                        lang))
+        return
+
     async with state.proxy() as data:
         card_nickname = data['card_nickname']
 
     try:
         await add_card(user_id=message.from_user.id,
-                       card_number=normalize_card_number(message.text),
+                       card_number=card_number,
                        card_nickname=card_nickname)
     except IntegrityError:
         # Another card got this nickname while the number was being entered
@@ -454,10 +469,27 @@ async def edit_card_number_handler(
     async with state.proxy() as data:
         card_id = data['card_id']
 
+    card_number = normalize_card_number(message.text)
+
+    # The card's own number is allowed, so it can be entered again
+    duplicate = await card_with_number(user_id=message.from_user.id,
+                                       card_number=card_number,
+                                       except_card_id=card_id)
+    if duplicate:
+        duplicate_id, duplicate_nickname = duplicate
+        await delete_user_message(message)
+        await edit_prompt(message, state,
+                          text=t(lang, 'number_taken',
+                                 nickname=duplicate_nickname),
+                          reply_markup=number_taken_ikb(
+                              duplicate_id, duplicate_nickname, lang,
+                              editing_card_id=card_id))
+        return
+
     saved = await edit_card_by_id(
         user_id=message.from_user.id,
         card_id=card_id,
-        new_card_number=normalize_card_number(message.text))
+        new_card_number=card_number)
 
     await delete_user_message(message)
 

@@ -257,6 +257,19 @@ async def nickname_taken(user_id: str, card_nickname: str,
     )
 
 
+async def card_with_number(user_id: str, card_number: str,
+                           except_card_id: int | None = None
+                           ) -> tuple | None:
+    """(id, nickname) of the user's card with this number, if any."""
+    # Compared in Python: encrypting the same number twice gives different
+    # tokens, so the database cannot match them
+    for card_id, card_nickname, number in await get_cards(user_id=user_id):
+        if card_id != except_card_id and number == card_number:
+            return card_id, card_nickname
+
+    return None
+
+
 async def stats() -> dict:
     users, cards, most = cur.execute(
         'SELECT COUNT(DISTINCT user_id), COUNT(*), '

@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from aiogram import Bot
 from aiogram.types import Update
+from aiogram.utils.exceptions import RetryAfter
 
 from bot.config import ADMIN_CHAT_ID, STARTUP_ALERT, ALERT_TIMEZONE
 from bot.keyboards import read_ikb
@@ -27,6 +28,11 @@ def local_time() -> str:
 
 
 def describe(exception: Exception) -> str:
+    # The wait differs every time, so it is left out for flood errors to be
+    # reported as one error rather than an alert per wait
+    if isinstance(exception, RetryAfter):
+        return 'RetryAfter: Flood control exceeded'
+
     # Only the type and message: never what the user sent
     return f'{type(exception).__name__}: {exception}'[:300]
 
@@ -85,6 +91,11 @@ async def notify_startup(bot: Bot) -> None:
 async def errors_handler(update: Update, exception: Exception) -> bool:
     logger.error('Update %s caused error', update.update_id,
                  exc_info=exception)
+
+    # Telegram is limiting the bot, so a reply would only hit the limit again
+    if isinstance(exception, RetryAfter):
+        await notify_admin(update, exception)
+        return True
 
     # The error may come from Telegram itself, so replying can fail too
     with suppress(Exception):
