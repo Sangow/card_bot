@@ -2,3 +2,6 @@ venv
 .idea
 *.db
 __pycache__/
+
+# Local list of planned improvements
+IMPROVEMENTS.md
