@@ -202,6 +202,29 @@ def test_rename_card(chat, harness):
     assert ('42', '4242424242424242', 'black') in harness.rows()
 
 
+def test_rename_button_of_deleted_card(chat, harness):
+    add_card(chat, '4242424242424242', 'mono')
+    chat.press('card:delete:1')
+
+    # The Rename button left in an old message of the deleted card
+    replies = chat.press('card:rename:1')
+
+    assert [r.method for r in replies] == ['answerCallbackQuery']
+    assert replies[0].text == 'Card not found.'
+    assert chat.state() is None
+
+
+def test_other_users_card_cannot_be_renamed(harness):
+    owner = harness.chat(user_id=1)
+    stranger = harness.chat(user_id=2)
+    add_card(owner, '4242424242424242', 'mono')
+
+    replies = stranger.press('card:rename:1')
+
+    assert replies[0].text == 'Card not found.'
+    assert stranger.state() is None
+
+
 def test_delete_asks_for_confirmation(chat, harness):
     add_card(chat, '4242424242424242', 'mono')
 
