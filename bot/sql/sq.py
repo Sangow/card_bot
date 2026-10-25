@@ -206,14 +206,18 @@ async def delete_card_by_id(user_id: str, card_id: int) -> None:
 async def edit_card_by_id(
         user_id: str,
         card_id: int,
-        new_card_number: str) -> None:
+        new_card_number: str) -> bool:
+    """Returns False when the user has no such card."""
     cur.execute(
         'UPDATE cards '
         'SET card_number=(?) '
         'WHERE user_id=(?) AND id=(?)',
         (encrypt(new_card_number), user_id, card_id)
     )
+    saved = cur.rowcount > 0
     db.commit()
+
+    return saved
 
 
 async def rename_card_by_id(
