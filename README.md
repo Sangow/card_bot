@@ -26,6 +26,8 @@ Telegram-бот [@cardnumber_bot](https://t.me/cardnumber_bot), який збе�
 | `ADMIN_CHAT_ID` | ні | — | Telegram chat id, куди бот надсилає сповіщення про помилки та запуск. Без нього сповіщень немає |
 | `STARTUP_ALERT` | ні | `1` | `0` вимикає повідомлення про запуск бота, сповіщення про помилки лишаються |
 | `ALERT_TIMEZONE` | ні | `Europe/Kyiv` | Часовий пояс для часу в сповіщеннях |
+| `HEARTBEAT_URL` | ні | — | URL сервісу моніторингу (напр. [Healthchecks.io](https://healthchecks.io)), на який бот шле POST, поки він живий і бачить Telegram. Коли пінги припиняються, сервіс надсилає сповіщення. Без нього пінгів немає |
+| `HEARTBEAT_INTERVAL` | ні | `300` | Через скільки секунд бот пінгує `HEARTBEAT_URL` |
 
 На Fly вони задаються як секрети: `fly secrets set MAX_CARDS=30 -a card-bot`.
 
