@@ -14,6 +14,9 @@ from .service import contains_card_number
 # tapping and typing fast stays well below it
 RATE_LIMIT = 20
 RATE_PERIOD = 10
+# Of those, at most this many messages: each one may get a reply, and
+# Telegram allows a bot about one message a second in a chat
+MESSAGE_LIMIT = 10
 # Past this many users, the ones who have gone quiet are forgotten, so the
 # counters do not grow with every user the bot has ever seen
 MAX_TRACKED_USERS = 1000
@@ -27,6 +30,8 @@ class ThrottlingMiddleware(BaseMiddleware):
         super().__init__()
         # User id -> times of their recent updates
         self.recent = {}
+        # User id -> times of their recent messages
+        self.recent_messages = {}
         # Users already told to slow down in their current burst
         self.warned = set()
 
@@ -34,22 +39,28 @@ class ThrottlingMiddleware(BaseMiddleware):
         for user_id, times in list(self.recent.items()):
             if not times or now - times[-1] >= RATE_PERIOD:
                 del self.recent[user_id]
+                self.recent_messages.pop(user_id, None)
                 self.warned.discard(user_id)
 
-    def throttled(self, user_id: int) -> bool:
+    def throttled(self, user_id: int, message: bool = False) -> bool:
         now = monotonic()
 
         if len(self.recent) > MAX_TRACKED_USERS:
             self.forget_quiet(now)
 
         times = self.recent.setdefault(user_id, deque())
-        while times and now - times[0] >= RATE_PERIOD:
-            times.popleft()
+        message_times = self.recent_messages.setdefault(user_id, deque())
+        for recent in (times, message_times):
+            while recent and now - recent[0] >= RATE_PERIOD:
+                recent.popleft()
 
-        if len(times) >= RATE_LIMIT:
+        if len(times) >= RATE_LIMIT or \
+                message and len(message_times) >= MESSAGE_LIMIT:
             return True
 
         times.append(now)
+        if message:
+            message_times.append(now)
         self.warned.discard(user_id)
 
         return False
@@ -66,7 +77,7 @@ class ThrottlingMiddleware(BaseMiddleware):
                                      data: dict) -> None:
         user = message.from_user
 
-        if user is None or not self.throttled(user.id):
+        if user is None or not self.throttled(user.id, message=True):
             return
 
         # A card number must not stay in the chat even when it is ignored

@@ -142,6 +142,7 @@ def harness(tmp_path, monkeypatch):
     # Tests send updates far faster than a person; test_throttling turns
     # the limit back on
     monkeypatch.setattr(throttling, 'RATE_LIMIT', 10 ** 6)
+    monkeypatch.setattr(throttling, 'MESSAGE_LIMIT', 10 ** 6)
 
     h = Harness()
 
