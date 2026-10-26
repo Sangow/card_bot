@@ -6,8 +6,8 @@ from bot.handlers.service import validate_card_nickname, \
     normalize_card_nickname, MAX_NICKNAME_LENGTH
 from conftest import add_card
 
-LOOKS_LIKE_NUMBER = ('A nickname must not look like a card number. '
-                     'Choose another nickname:')
+CONTAINS_NUMBER = ('A nickname must not contain a card number. '
+                   'Choose another nickname:')
 
 
 @pytest.mark.parametrize('card_nickname', [
@@ -89,7 +89,7 @@ def test_number_like_nickname_is_rejected(chat, harness):
     replies = chat.send('4242 4242 4242 4242')
 
     assert replies[0].method == 'deleteMessage'
-    assert replies[-1].text == LOOKS_LIKE_NUMBER
+    assert replies[-1].text == CONTAINS_NUMBER
     assert chat.state() == 'AddCard:card_nickname'
 
 
@@ -99,7 +99,7 @@ def test_card_cannot_be_renamed_to_number_like_nickname(chat, harness):
     chat.press('card:rename:1')
     replies = chat.send('4242 4242 4242 4242')
 
-    assert replies[-1].text == LOOKS_LIKE_NUMBER
+    assert replies[-1].text == CONTAINS_NUMBER
     assert card_rows(harness) == ['mono']
 
 
@@ -109,7 +109,7 @@ def test_number_like_nickname_in_ukrainian(harness):
 
     replies = chat.send('4242424242424242')
 
-    assert replies[-1].text == ('Назва не має бути схожою на номер картки. '
+    assert replies[-1].text == ('Назва не має містити номер картки. '
                                 'Оберіть іншу назву:')
 
 
