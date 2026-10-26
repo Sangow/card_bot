@@ -1,6 +1,9 @@
 import pytest
 
+import bot.handlers.fallback as fallback
 from conftest import add_card
+
+NOT_UNDERSTOOD = 'I did not understand that. Use the buttons:'
 
 STICKER = {'file_id': 'x', 'file_unique_id': 'y', 'width': 1, 'height': 1,
            'is_animated': False, 'is_video': False, 'type': 'regular'}
@@ -172,3 +175,66 @@ def test_dialogs_still_take_text_first(chat, harness):
     chat.send('4242 4242 4242 4242')         # the number of that card
 
     assert harness.rows() == [('42', '4242424242424242', 'hello')]
+
+
+@pytest.fixture
+def clock(monkeypatch):
+    """Time that only moves when told to."""
+    now = [1000.0]
+    monkeypatch.setattr(fallback, 'monotonic', lambda: now[0])
+
+    return now
+
+
+def test_repeated_unknown_text_is_answered_once(chat, clock):
+    first = chat.send('hello')
+    second = chat.send('hello again')
+    sticker = send_sticker(chat)
+
+    assert first[0].text == NOT_UNDERSTOOD
+    assert second == []
+    assert sticker == []
+
+
+def test_unknown_text_is_answered_again_after_the_interval(chat, clock):
+    chat.send('hello')
+
+    clock[0] += fallback.NOT_UNDERSTOOD_INTERVAL
+
+    assert chat.send('hello')[0].text == NOT_UNDERSTOOD
+
+
+def test_commands_still_work_after_unknown_text(chat, clock):
+    chat.send('hello')
+
+    menu, = shown(chat.send('/cards'))
+
+    assert menu.text != NOT_UNDERSTOOD
+    assert menu.method == 'sendMessage'
+
+
+def test_card_number_is_deleted_after_unknown_text(chat, clock):
+    chat.send('hello')
+
+    replies = chat.send('4242 4242 4242 4242')
+
+    assert deleted(replies) == [chat.last_message_id]
+    assert shown(replies)[0].text.startswith(
+        'Your message with a card number was deleted')
+
+
+def test_unknown_text_interval_is_per_user(harness, clock):
+    harness.chat(user_id=1).send('hello')
+
+    assert harness.chat(user_id=2).send('hello')[0].text == NOT_UNDERSTOOD
+
+
+def test_users_answered_long_ago_are_forgotten(harness, clock, monkeypatch):
+    monkeypatch.setattr(fallback, 'MAX_TRACKED_USERS', 2)
+    for user_id in (1, 2, 3):
+        harness.chat(user_id=user_id).send('hello')
+
+    clock[0] += fallback.NOT_UNDERSTOOD_INTERVAL
+    harness.chat(user_id=4).send('hello')
+
+    assert set(fallback.not_understood_at) == {4}
