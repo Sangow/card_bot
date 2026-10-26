@@ -225,6 +225,26 @@ def test_other_users_card_cannot_be_renamed(harness):
     assert stranger.state() is None
 
 
+def test_rename_prompt_shows_current_nickname(chat):
+    add_card(chat, '4242424242424242', 'Моно чорна')
+
+    replies = chat.press('card:rename:1')
+
+    assert replies[0].method == 'editMessageText'
+    assert replies[0].text == ('Current nickname: «Моно чорна».\n'
+                               'Enter new card nickname:')
+
+
+def test_rename_prompt_in_ukrainian(harness):
+    chat = harness.chat(language_code='uk')
+    add_card(chat, '4242424242424242', 'mono')
+
+    replies = chat.press('card:rename:1')
+
+    assert replies[0].text == ('Поточна назва: «mono».\n'
+                               'Введіть нову назву картки:')
+
+
 def test_delete_asks_for_confirmation(chat, harness):
     add_card(chat, '4242424242424242', 'mono')
 
