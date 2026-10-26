@@ -87,6 +87,7 @@ TEXTS = {
         'short_description': 'Keep your card numbers and share them in one '
                              'tap. Numbers are stored encrypted.',
 
+        'cmd_start': 'Main menu',
         'cmd_cards': 'My cards',
         'cmd_add': 'Add card',
         'cmd_cancel': 'Cancel current action',
@@ -202,6 +203,7 @@ TEXTS = {
         'short_description': 'Зберігайте номери карток і діліться ними в '
                              'один дотик. Номери зберігаються зашифрованими.',
 
+        'cmd_start': 'Головне меню',
         'cmd_cards': 'Мої картки',
         'cmd_add': 'Додати картку',
         'cmd_cancel': 'Скасувати дію',
