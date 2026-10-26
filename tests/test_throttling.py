@@ -1,7 +1,7 @@
 import pytest
 
 import bot.handlers.throttling as throttling
-from bot.handlers.throttling import RATE_LIMIT, RATE_PERIOD
+from bot.handlers.throttling import RATE_LIMIT, RATE_PERIOD, MESSAGE_LIMIT
 from conftest import add_card
 from test_favorite import inline_titles
 
@@ -13,6 +13,7 @@ def clock(harness, monkeypatch):
     """Turns the limit back on, with time that only moves when told to."""
     now = [1000.0]
     monkeypatch.setattr(throttling, 'RATE_LIMIT', RATE_LIMIT)
+    monkeypatch.setattr(throttling, 'MESSAGE_LIMIT', MESSAGE_LIMIT)
     monkeypatch.setattr(throttling, 'monotonic', lambda: now[0])
 
     return now
@@ -151,3 +152,55 @@ def test_quiet_users_are_forgotten(harness, clock, monkeypatch):
     harness.chat(user_id=4).press('nav:about')
 
     assert set(middleware(harness).recent) == {4}
+
+
+def use_up_message_limit(chat) -> None:
+    for _ in range(MESSAGE_LIMIT):
+        chat.send('/help')
+
+
+def test_messages_up_to_their_limit_are_handled(chat, clock):
+    for _ in range(MESSAGE_LIMIT - 1):
+        chat.send('/help')
+
+    assert chat.send('/help')[-1].text != WARNING
+
+
+def test_messages_over_their_limit_are_ignored(chat, clock):
+    use_up_message_limit(chat)
+
+    first = chat.send('/help')
+    second = chat.send('/help')
+
+    assert [(r.method, r.text) for r in first] == [('sendMessage', WARNING)]
+    assert second == []
+
+
+def test_presses_work_when_messages_are_limited(chat, clock):
+    use_up_message_limit(chat)
+    chat.send('/help')
+
+    replies = chat.press('nav:about')
+
+    assert replies[0].method == 'editMessageText'
+
+
+def test_message_limit_is_lifted_after_the_period(chat, clock):
+    use_up_message_limit(chat)
+    chat.send('/help')
+
+    clock[0] += RATE_PERIOD
+
+    assert chat.send('/help')[-1].text != WARNING
+
+
+def test_messages_also_count_towards_the_limit_of_all_updates(chat, clock):
+    messages = MESSAGE_LIMIT // 2
+    for _ in range(RATE_LIMIT - messages):
+        chat.press('nav:about')
+    for _ in range(messages - 1):
+        chat.send('/help')
+
+    assert chat.send('/help')[-1].text != WARNING
+    # Fewer messages than their own limit, but all updates reach theirs
+    assert chat.send('/help')[-1].text == WARNING
