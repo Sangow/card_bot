@@ -8,7 +8,7 @@ from bot.texts import TEXTS, LANG_ALIASES, DEFAULT_LANG, t
 
 logger = logging.getLogger(__name__)
 
-COMMANDS = ('cards', 'add', 'cancel', 'help')
+COMMANDS = ('start', 'cards', 'add', 'cancel', 'help')
 
 
 def bot_commands(lang: str) -> list:
