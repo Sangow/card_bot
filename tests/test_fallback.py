@@ -35,7 +35,10 @@ def test_unknown_text_gets_menu(chat, text):
 
 @pytest.mark.parametrize('text', ['4242 4242 4242 4242',
                                   '4242-4242-4242-4241',
-                                  '4242424242424242'])
+                                  '4242424242424242',
+                                  'mono 4242 4242 4242 4242',
+                                  '4242 4242 4242 4242 12/27',
+                                  '4242424242424242 5555555555554444'])
 def test_card_number_outside_dialog_is_deleted(chat, harness, text):
     replies = chat.send(text)
 
@@ -51,6 +54,52 @@ def test_short_number_is_not_treated_as_card(chat):
 
     assert deleted(replies) == []
     assert replies[0].text == 'I did not understand that. Use the buttons:'
+
+
+@pytest.mark.parametrize('text', ['mono 4242', 'card 1234 5678'])
+def test_text_with_short_number_stays(chat, text):
+    replies = chat.send(text)
+
+    assert deleted(replies) == []
+    assert replies[0].text == 'I did not understand that. Use the buttons:'
+
+
+def edit(chat, message_id: int, text: str, chat_type: str = 'private'):
+    return chat.harness.process({'edited_message': {
+        'message_id': message_id, 'date': 0, 'edit_date': 0,
+        'chat': {'id': chat.user['id'], 'type': chat_type},
+        'from': chat.user, 'text': text,
+    }})
+
+
+def test_message_edited_to_hold_card_number_is_deleted(chat):
+    chat.send('hello')
+
+    replies = edit(chat, chat.last_message_id, 'mono 4242 4242 4242 4242')
+
+    assert deleted(replies) == [chat.last_message_id]
+    hint, = shown(replies)
+    assert hint.text.startswith('Your message with a card number was deleted')
+
+
+def test_message_edited_to_other_text_stays(chat):
+    chat.send('hello')
+
+    assert edit(chat, chat.last_message_id, 'hello there') == []
+
+
+def test_message_edited_in_a_dialog_is_deleted(chat):
+    chat.send('hello')
+    chat.press('nav:add')
+
+    replies = edit(chat, chat.last_message_id, '4242424242424242')
+
+    assert deleted(replies) == [chat.last_message_id]
+    assert chat.harness.rows() == []
+
+
+def test_group_message_edited_to_hold_card_number_is_ignored(chat):
+    assert edit(chat, 5, '4242424242424242', chat_type='group') == []
 
 
 def test_sticker_outside_dialog_gets_menu_and_stays(chat):
