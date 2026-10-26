@@ -1,4 +1,5 @@
 import re
+from time import monotonic
 
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, Message
@@ -12,6 +13,15 @@ from .user_handlers import edit_prompt, delete_user_message
 NICKNAME_STATES = (AddCard.card_nickname.state,
                    ShowCard.edit_card_nickname.state)
 NUMBER_STATES = (AddCard.card_number.state, ShowCard.edit_card_number.state)
+
+# A user is told "not understood" at most once in this many seconds; the
+# rest is ignored, so a flood of junk does not get a reply per message
+NOT_UNDERSTOOD_INTERVAL = 30
+# Past this many users, the ones answered long ago are forgotten
+MAX_TRACKED_USERS = 1000
+
+# User id -> when they were last told "not understood"
+not_understood_at = {}
 
 
 async def non_text_in_dialog_handler(message: Message,
@@ -47,7 +57,27 @@ async def card_number_outside_dialog_handler(message: Message) -> None:
                          reply_markup=main_ikb(lang))
 
 
+def recently_not_understood(user_id: int) -> bool:
+    now = monotonic()
+
+    if len(not_understood_at) > MAX_TRACKED_USERS:
+        for other_id, answered_at in list(not_understood_at.items()):
+            if now - answered_at >= NOT_UNDERSTOOD_INTERVAL:
+                del not_understood_at[other_id]
+
+    answered_at = not_understood_at.get(user_id)
+    if answered_at is not None and now - answered_at < NOT_UNDERSTOOD_INTERVAL:
+        return True
+
+    not_understood_at[user_id] = now
+
+    return False
+
+
 async def not_understood_handler(message: Message) -> None:
+    if recently_not_understood(message.from_user.id):
+        return
+
     lang = get_lang(message.from_user)
 
     await message.answer(text=t(lang, 'not_understood'),

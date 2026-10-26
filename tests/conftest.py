@@ -6,6 +6,7 @@ import pytest
 from aiogram import Bot, Dispatcher, types
 from cryptography.fernet import Fernet
 
+import bot.handlers.fallback as fallback
 import bot.handlers.hiding as hiding
 import bot.handlers.throttling as throttling
 import bot.sql.sq as sq
@@ -141,6 +142,7 @@ def harness(tmp_path, monkeypatch):
     # Tests send updates far faster than a person; test_throttling turns
     # the limit back on
     monkeypatch.setattr(throttling, 'RATE_LIMIT', 10 ** 6)
+    monkeypatch.setattr(throttling, 'MESSAGE_LIMIT', 10 ** 6)
 
     h = Harness()
 
@@ -170,6 +172,7 @@ def harness(tmp_path, monkeypatch):
     for task, _ in hiding.pending.values():
         task.cancel()
     hiding.pending.clear()
+    fallback.not_understood_at.clear()
     sq.db.close()
     h.loop.close()
 
