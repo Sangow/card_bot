@@ -151,7 +151,7 @@ def test_quiet_users_are_forgotten(harness, clock, monkeypatch):
     clock[0] += RATE_PERIOD
     harness.chat(user_id=4).press('nav:about')
 
-    assert set(middleware(harness).recent) == {4}
+    assert set(middleware(harness).users) == {4}
 
 
 def use_up_message_limit(chat) -> None:

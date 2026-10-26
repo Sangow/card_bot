@@ -59,6 +59,8 @@ TEXTS = {
         'private_only': 'I only work in private messages. '
                         'Open a chat with me to manage your cards.',
         'too_many_actions': 'Too many actions. Please wait a few seconds.',
+        'muted': 'Too many actions. The bot will not respond to you for '
+                 '{minutes} min.',
         'help': 'Card bot keeps your card numbers so you can copy or send '
                 'them in one tap.\n\n'
                 '💳 My cards - tap a card to see and copy its number, '
@@ -171,6 +173,7 @@ TEXTS = {
         'private_only': 'Я працюю лише в особистих повідомленнях. '
                         'Відкрийте чат зі мною, щоб керувати картками.',
         'too_many_actions': 'Забагато дій. Зачекайте кілька секунд.',
+        'muted': 'Забагато дій. Бот не відповідатиме вам {minutes} хв.',
         'help': 'Card bot зберігає номери ваших карток, щоб їх можна було '
                 'скопіювати чи надіслати в один дотик.\n\n'
                 '💳 Мої картки - натисніть на картку, щоб побачити й '
