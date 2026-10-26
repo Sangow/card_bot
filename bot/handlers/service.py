@@ -41,10 +41,10 @@ def nickname_too_long(card_nickname: str) -> bool:
     return len(normalize_card_nickname(card_nickname)) > MAX_NICKNAME_LENGTH
 
 
-def nickname_looks_like_card_number(card_nickname: str) -> bool:
+def nickname_contains_card_number(card_nickname: str) -> bool:
     # Nicknames are stored and shown unencrypted, so a card number must not
     # end up in one
-    return looks_like_card_number(normalize_card_nickname(card_nickname))
+    return contains_card_number(normalize_card_nickname(card_nickname))
 
 
 def validate_card_nickname(card_nickname: str) -> bool:
@@ -60,7 +60,7 @@ def validate_card_nickname(card_nickname: str) -> bool:
     if '<' in nick or '>' in nick:
         return False
 
-    return not nickname_looks_like_card_number(nick)
+    return not nickname_contains_card_number(nick)
 
 
 # Checked in order, so narrower prefixes go before wider ones
@@ -125,10 +125,10 @@ def is_mir_card(card_number: str) -> bool:
     return normalize_card_number(card_number).startswith(MIR_PREFIXES)
 
 
-def looks_like_card_number(text: str) -> bool:
-    # Broader than validate_card_number on purpose: a number with a typo
-    # is just as private
-    if not re.fullmatch(r'[\d\s-]+', text):
-        return False
-
-    return 12 <= sum(ch.isdigit() for ch in text) <= 19
+def contains_card_number(text: str) -> bool:
+    # Broader than validate_card_number on purpose: a number with a typo is
+    # just as private, and so is one sent with other text, such as
+    # "mono 4242 4242 4242 4242" or the number followed by its expiry date.
+    # No upper limit, as that run of digits may hold two numbers
+    return any(sum(ch.isdigit() for ch in run) >= 12
+               for run in re.findall(r'\d[\d\s-]*', text))

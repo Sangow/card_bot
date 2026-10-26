@@ -18,7 +18,7 @@ from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .hiding import schedule_hide, cancel_hide
 from .service import card_label, format_card_number, nickname_too_long, \
-    nickname_looks_like_card_number, normalize_card_number, \
+    nickname_contains_card_number, normalize_card_number, \
     normalize_card_nickname, MAX_NICKNAME_LENGTH
 
 CARDS_PER_PAGE = 5
@@ -89,8 +89,8 @@ def card_view_text(lang: str, card_nickname: str, card_number: str) -> str:
 def nickname_error(lang: str, card_nickname: str) -> str:
     if nickname_too_long(card_nickname):
         return t(lang, 'nickname_too_long', limit=MAX_NICKNAME_LENGTH)
-    if nickname_looks_like_card_number(card_nickname):
-        return t(lang, 'nickname_looks_like_number')
+    if nickname_contains_card_number(card_nickname):
+        return t(lang, 'nickname_contains_number')
 
     return t(lang, 'choose_another_nickname')
 

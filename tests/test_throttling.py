@@ -96,6 +96,15 @@ def test_ignored_card_number_is_still_deleted(chat, harness, clock):
     assert harness.rows() == []
 
 
+def test_ignored_card_number_with_text_is_still_deleted(chat, clock):
+    use_up_limit(chat)
+
+    replies = chat.send('mono 4242 4242 4242 4242')
+
+    assert [r.method for r in replies] == ['deleteMessage', 'sendMessage']
+    assert replies[1].text == WARNING
+
+
 def test_ignored_text_is_not_deleted(chat, clock):
     use_up_limit(chat)
 
