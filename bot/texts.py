@@ -83,7 +83,7 @@ TEXTS = {
                        '👁 A shown number hides itself after a few minutes\n'
                        '📤 Share a card from any chat: @cardnumber_bot\n'
                        '⭐ Your one favorite card always comes first\n\n'
-                       'Tap Start to add your first card.',
+                       'Tap Start or send /start to add your first card.',
         'short_description': 'Keep your card numbers and share them in one '
                              'tap. Numbers are stored encrypted.',
 
@@ -199,7 +199,8 @@ TEXTS = {
                        '📤 Поділитися карткою можна з будь-якого чату: '
                        '@cardnumber_bot\n'
                        '⭐ Одна улюблена картка завжди перша в списку\n\n'
-                       'Натисніть «Почати», щоб додати першу картку.',
+                       'Натисніть «Почати» або надішліть /start, щоб додати '
+                       'першу картку.',
         'short_description': 'Зберігайте номери карток і діліться ними в '
                              'один дотик. Номери зберігаються зашифрованими.',
 
