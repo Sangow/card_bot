@@ -1,6 +1,6 @@
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Command, CommandStart, Text
-from aiogram.types import ContentTypes
+from aiogram.types import ChatType, ContentTypes
 
 from bot.keyboards import nav_cb, card_cb, cards_cb
 from bot.states import AddCard, ShowCard
@@ -160,5 +160,11 @@ async def register_handlers(dp: Dispatcher) -> None:
                                 contains_card_number(message.text))
     dp.register_message_handler(not_understood_handler,
                                 content_types=ContentTypes.ANY)
+    # A message the bot left in the chat may be edited to hold a number
+    dp.register_edited_message_handler(card_number_outside_dialog_handler,
+                                       lambda message:
+                                       contains_card_number(message.text),
+                                       chat_type=ChatType.PRIVATE,
+                                       state='*')
 
     dp.register_errors_handler(errors_handler)
