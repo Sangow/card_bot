@@ -18,7 +18,8 @@ from bot.states import AddCard, ShowCard
 from bot.texts import t, get_lang
 from .hiding import schedule_hide, cancel_hide
 from .service import card_label, format_card_number, nickname_too_long, \
-    normalize_card_number, MAX_NICKNAME_LENGTH
+    nickname_looks_like_card_number, normalize_card_number, \
+    normalize_card_nickname, MAX_NICKNAME_LENGTH
 
 CARDS_PER_PAGE = 5
 
@@ -88,6 +89,8 @@ def card_view_text(lang: str, card_nickname: str, card_number: str) -> str:
 def nickname_error(lang: str, card_nickname: str) -> str:
     if nickname_too_long(card_nickname):
         return t(lang, 'nickname_too_long', limit=MAX_NICKNAME_LENGTH)
+    if nickname_looks_like_card_number(card_nickname):
+        return t(lang, 'nickname_looks_like_number')
 
     return t(lang, 'choose_another_nickname')
 
@@ -230,15 +233,17 @@ async def add_card_2(message: Message, state: FSMContext) -> None:
 
     await delete_user_message(message)
 
+    card_nickname = normalize_card_nickname(message.text)
+
     if await nickname_taken(user_id=message.from_user.id,
-                            card_nickname=message.text):
+                            card_nickname=card_nickname):
         await edit_prompt(message, state,
                           text=t(lang, 'nickname_not_unique'),
                           reply_markup=cancel_ikb(lang))
         return
 
     async with state.proxy() as data:
-        data['card_nickname'] = message.text
+        data['card_nickname'] = card_nickname
 
     await edit_prompt(message, state, text=t(lang, 'enter_card_number'),
                       reply_markup=cancel_ikb(lang))
@@ -551,9 +556,11 @@ async def rename_card_save_handler(message: Message,
 
     await delete_user_message(message)
 
+    card_nickname = normalize_card_nickname(message.text)
+
     # The card's own nickname is allowed, so its case can be changed
     if await nickname_taken(user_id=message.from_user.id,
-                            card_nickname=message.text,
+                            card_nickname=card_nickname,
                             except_card_id=card_id):
         await edit_prompt(message, state,
                           text=t(lang, 'nickname_not_unique'),
@@ -563,7 +570,7 @@ async def rename_card_save_handler(message: Message,
     try:
         await rename_card_by_id(user_id=message.from_user.id,
                                 card_id=card_id,
-                                new_card_nickname=message.text)
+                                new_card_nickname=card_nickname)
     except IntegrityError:
         await edit_prompt(message, state,
                           text=t(lang, 'nickname_not_unique'),

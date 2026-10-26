@@ -31,22 +31,36 @@ def validate_card_number(card_number: str) -> bool:
 MAX_NICKNAME_LENGTH = 32
 
 
+def normalize_card_nickname(card_nickname: str) -> str:
+    # Words are kept apart by single spaces, so "mono  black" and
+    # "mono black" are one nickname
+    return re.sub(r' +', ' ', card_nickname.strip())
+
+
 def nickname_too_long(card_nickname: str) -> bool:
-    return len(card_nickname.strip()) > MAX_NICKNAME_LENGTH
+    return len(normalize_card_nickname(card_nickname)) > MAX_NICKNAME_LENGTH
+
+
+def nickname_looks_like_card_number(card_nickname: str) -> bool:
+    # Nicknames are stored and shown unencrypted, so a card number must not
+    # end up in one
+    return looks_like_card_number(normalize_card_nickname(card_nickname))
 
 
 def validate_card_nickname(card_nickname: str) -> bool:
-    if nickname_too_long(card_nickname):
+    nick = normalize_card_nickname(card_nickname)
+
+    if not nick or nickname_too_long(nick):
         return False
 
-    nick = card_nickname.split()
-
-    if len(nick) != 1:
+    # One line: spaces between words, but no line breaks or tabs
+    if any(ch.isspace() and ch != ' ' for ch in nick):
         return False
 
-    c_n = nick[0]
+    if '<' in nick or '>' in nick:
+        return False
 
-    return isinstance(c_n, str) and c_n.count('<') == 0 and c_n.count('>') == 0
+    return not nickname_looks_like_card_number(nick)
 
 
 # Checked in order, so narrower prefixes go before wider ones

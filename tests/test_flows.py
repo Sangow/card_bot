@@ -192,7 +192,7 @@ def test_rename_card(chat, harness):
     add_card(chat, '5555555555554444', 'privat')
 
     chat.press('card:rename:1')
-    assert chat.send('two words')[-1].text.startswith('Choose another')
+    assert chat.send('two\nlines')[-1].text.startswith('Choose another')
     assert chat.send('privat')[-1].text.startswith('Nickname of your card')
 
     replies = chat.send('black')

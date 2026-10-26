@@ -8,13 +8,15 @@ TEXTS = {
         'enter_card_number': 'Enter card number:',
         'card_invalid': 'Credit card is invalid.',
         'card_not_supported': 'Mir cards are not supported.',
-        'enter_nickname': 'Enter card nickname (without spaces):',
+        'enter_nickname': 'Enter card nickname:',
         'choose_another_nickname': 'Choose another nickname '
-                                   '(without spaces):',
+                                   '(one line, without < and >):',
+        'nickname_looks_like_number': 'A nickname must not look like a card '
+                                      'number. Choose another nickname:',
         'nickname_too_long': 'Nickname must be at most {limit} '
                              'characters long:',
         'nickname_not_unique': 'Nickname of your card should be unique.\n'
-                               'Choose another nickname (without spaces):',
+                               'Choose another nickname:',
         'number_taken': 'This number is already saved as «{nickname}».\n'
                         'Enter another card number:',
         'card_added': 'Card added.',
@@ -31,7 +33,7 @@ TEXTS = {
         'card_hidden': '<b>Nickname:</b> {nickname}\n\n'
                        '🔒 Number hidden',
         'enter_new_card_number': 'Enter new card number:',
-        'enter_new_nickname': 'Enter new card nickname (without spaces):',
+        'enter_new_nickname': 'Enter new card nickname:',
         'info_saved': 'Information saved.',
         'delete_confirm': 'Delete card "{nickname}"?',
         'card_deleted': 'Card deleted.',
@@ -115,12 +117,15 @@ TEXTS = {
         'enter_card_number': 'Введіть номер картки:',
         'card_invalid': 'Недійсний номер картки.',
         'card_not_supported': 'Картки «Мир» не підтримуються.',
-        'enter_nickname': 'Введіть назву картки (без пробілів):',
-        'choose_another_nickname': 'Оберіть іншу назву (без пробілів):',
+        'enter_nickname': 'Введіть назву картки:',
+        'choose_another_nickname': 'Оберіть іншу назву '
+                                   '(в один рядок, без < і >):',
+        'nickname_looks_like_number': 'Назва не має бути схожою на номер '
+                                      'картки. Оберіть іншу назву:',
         'nickname_too_long': 'Назва має бути не довшою за {limit} '
                              'символи:',
         'nickname_not_unique': 'Назва картки має бути унікальною.\n'
-                               'Оберіть іншу назву (без пробілів):',
+                               'Оберіть іншу назву:',
         'number_taken': 'Цей номер уже збережено як «{nickname}».\n'
                         'Введіть інший номер картки:',
         'card_added': 'Картку додано.',
@@ -137,7 +142,7 @@ TEXTS = {
         'card_hidden': '<b>Назва:</b> {nickname}\n\n'
                        '🔒 Номер приховано',
         'enter_new_card_number': 'Введіть новий номер картки:',
-        'enter_new_nickname': 'Введіть нову назву картки (без пробілів):',
+        'enter_new_nickname': 'Введіть нову назву картки:',
         'info_saved': 'Збережено.',
         'delete_confirm': 'Видалити картку «{nickname}»?',
         'card_deleted': 'Картку видалено.',
