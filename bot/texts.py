@@ -32,8 +32,10 @@ TEXTS = {
                      '⬆️<b>Tap to copy</b>⬆️',
         'card_hidden': '<b>Nickname:</b> {nickname}\n\n'
                        '🔒 Number hidden',
-        'enter_new_card_number': 'Enter new card number:',
-        'enter_new_nickname': 'Enter new card nickname:',
+        'enter_new_card_number': 'Card: {card}\n'
+                                 'Enter new card number:',
+        'enter_new_nickname': 'Current nickname: «{nickname}».\n'
+                              'Enter new card nickname:',
         'info_saved': 'Information saved.',
         'delete_confirm': 'Delete card "{nickname}"?',
         'card_deleted': 'Card deleted.',
@@ -141,8 +143,10 @@ TEXTS = {
                      '⬆️<b>Натисніть, щоб скопіювати</b>⬆️',
         'card_hidden': '<b>Назва:</b> {nickname}\n\n'
                        '🔒 Номер приховано',
-        'enter_new_card_number': 'Введіть новий номер картки:',
-        'enter_new_nickname': 'Введіть нову назву картки:',
+        'enter_new_card_number': 'Картка: {card}\n'
+                                 'Введіть новий номер картки:',
+        'enter_new_nickname': 'Поточна назва: «{nickname}».\n'
+                              'Введіть нову назву картки:',
         'info_saved': 'Збережено.',
         'delete_confirm': 'Видалити картку «{nickname}»?',
         'card_deleted': 'Картку видалено.',

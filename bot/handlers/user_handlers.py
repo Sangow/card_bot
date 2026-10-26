@@ -423,12 +423,20 @@ async def edit_card_handler(call: CallbackQuery,
 
     card_id = int(callback_data['card_id'])
 
+    card = await get_card(user_id=call.from_user.id, card_id=card_id)
+
     # The button may be left in an old message after the card was deleted
-    if await get_card(user_id=call.from_user.id, card_id=card_id) is None:
+    if card is None:
         await call.answer(text=t(lang, 'card_not_found'), show_alert=True)
         return
 
-    await edit_message(call, text=t(lang, 'enter_new_card_number'),
+    card_nickname, card_number = card
+
+    # The card is shown masked, as in the list, so the full number does not
+    # stay in the chat while the new one is entered
+    await edit_message(call, text=t(lang, 'enter_new_card_number',
+                                    card=card_label(card_nickname,
+                                                    card_number)),
                        reply_markup=edit_ikb(card_id, lang))
 
     await ShowCard.edit_card_number.set()
@@ -517,12 +525,18 @@ async def rename_card_handler(call: CallbackQuery,
 
     card_id = int(callback_data['card_id'])
 
+    card = await get_card(user_id=call.from_user.id, card_id=card_id)
+
     # The button may be left in an old message after the card was deleted
-    if await get_card(user_id=call.from_user.id, card_id=card_id) is None:
+    if card is None:
         await call.answer(text=t(lang, 'card_not_found'), show_alert=True)
         return
 
-    await edit_message(call, text=t(lang, 'enter_new_nickname'),
+    card_nickname, _ = card
+
+    # The current nickname shows which card is being renamed
+    await edit_message(call, text=t(lang, 'enter_new_nickname',
+                                    nickname=card_nickname),
                        reply_markup=rename_ikb(card_id, lang))
 
     await ShowCard.edit_card_nickname.set()
