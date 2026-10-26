@@ -8,7 +8,7 @@ from aiogram.types import CallbackQuery, InlineQuery, Message
 from aiogram.utils.exceptions import TelegramAPIError
 
 from bot.texts import t, get_lang
-from .service import looks_like_card_number
+from .service import contains_card_number
 
 # At most this many updates from one user in RATE_PERIOD seconds; a person
 # tapping and typing fast stays well below it
@@ -70,7 +70,7 @@ class ThrottlingMiddleware(BaseMiddleware):
             return
 
         # A card number must not stay in the chat even when it is ignored
-        if looks_like_card_number(message.text or ''):
+        if contains_card_number(message.text or ''):
             with suppress(TelegramAPIError):
                 await message.delete()
 

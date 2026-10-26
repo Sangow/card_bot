@@ -11,8 +11,8 @@ TEXTS = {
         'enter_nickname': 'Enter card nickname:',
         'choose_another_nickname': 'Choose another nickname '
                                    '(one line, without < and >):',
-        'nickname_looks_like_number': 'A nickname must not look like a card '
-                                      'number. Choose another nickname:',
+        'nickname_contains_number': 'A nickname must not contain a card '
+                                    'number. Choose another nickname:',
         'nickname_too_long': 'Nickname must be at most {limit} '
                              'characters long:',
         'nickname_not_unique': 'Nickname of your card should be unique.\n'
@@ -122,8 +122,8 @@ TEXTS = {
         'enter_nickname': 'Введіть назву картки:',
         'choose_another_nickname': 'Оберіть іншу назву '
                                    '(в один рядок, без < і >):',
-        'nickname_looks_like_number': 'Назва не має бути схожою на номер '
-                                      'картки. Оберіть іншу назву:',
+        'nickname_contains_number': 'Назва не має містити номер картки. '
+                                    'Оберіть іншу назву:',
         'nickname_too_long': 'Назва має бути не довшою за {limit} '
                              'символи:',
         'nickname_not_unique': 'Назва картки має бути унікальною.\n'
