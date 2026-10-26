@@ -64,7 +64,8 @@ def test_valid_nicknames(card_nickname):
     assert validate_card_nickname(card_nickname)
 
 
-@pytest.mark.parametrize('card_nickname', ['two words', '<b>', 'a>b', '', ' '])
+@pytest.mark.parametrize('card_nickname',
+                         ['two\nlines', '<b>', 'a>b', '', ' '])
 def test_invalid_nicknames(card_nickname):
     assert not validate_card_nickname(card_nickname)
 
